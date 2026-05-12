@@ -1,12 +1,23 @@
-﻿# Internal Admin System
+# internal-admin-system
 
 公司内部后台管理系统原型，当前包含流程管理模块。
 
 ## 运行方式
 
-这是一个纯静态原型，直接打开 `index.html` 即可预览。
+这是一个纯静态原型，可以直接打开 `index.html` 预览，也可以在项目根目录启动本地静态服务：
 
-后续可以继续拆分为：
+```powershell
+python -m http.server 8000 --bind 127.0.0.1
+```
+
+然后访问：
+
+```text
+http://127.0.0.1:8000/index.html
+```
+
+## 后续模块
+
 - 流程管理
 - 流程模板配置
 - 通知机器人配置
