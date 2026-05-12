@@ -1,0 +1,3300 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>产品 Release Flow 原型</title>
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --panel: #ffffff;
+      --text: #1f2937;
+      --muted: #64748b;
+      --line: #d8dee8;
+      --line-soft: #e9edf3;
+      --green: #1f8a5b;
+      --green-soft: #e6f5ee;
+      --blue: #2563eb;
+      --blue-soft: #eaf1ff;
+      --amber: #b76e00;
+      --amber-soft: #fff5db;
+      --red: #b42318;
+      --red-soft: #ffebe8;
+      --ink: #0f172a;
+      --shadow: 0 10px 26px rgba(15, 23, 42, 0.08);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+      letter-spacing: 0;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--text);
+      border-radius: 7px;
+      min-height: 36px;
+      padding: 0 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    [class^="el-icon-"],
+    [class*=" el-icon-"] {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1em;
+      height: 1em;
+      line-height: 1;
+      font-style: normal;
+    }
+
+    .el-icon-plus::before { content: "+"; }
+    .el-icon-setting::before { content: "⚙"; }
+    .el-icon-video-play::before { content: "▶"; }
+    .el-icon-back::before { content: "‹"; }
+    .el-icon-check::before { content: "✓"; }
+    .el-icon-document-checked::before { content: "✓"; }
+    .el-icon-refresh-left::before { content: "↺"; }
+    .el-icon-message::before { content: "✉"; }
+    .el-icon-edit::before { content: "✎"; }
+    .el-icon-upload2::before { content: "↑"; }
+    .el-icon-download::before { content: "↓"; }
+    .el-icon-delete::before { content: "×"; }
+    .el-icon-close::before { content: "×"; }
+    .el-icon-top::before { content: "↑"; }
+    .el-icon-bottom::before { content: "↓"; }
+    .el-icon-arrow-right::before { content: ">"; }
+
+    button:hover {
+      border-color: #aeb8c8;
+      background: #f9fafb;
+    }
+
+    button.primary {
+      border-color: var(--blue);
+      background: var(--blue);
+      color: white;
+    }
+
+    button.primary:hover {
+      background: #1d4ed8;
+    }
+
+    button.success {
+      border-color: var(--green);
+      background: var(--green);
+      color: white;
+    }
+
+    button.success:hover {
+      background: #177149;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: .45;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: white;
+      color: var(--text);
+      padding: 9px 10px;
+      min-height: 38px;
+    }
+
+    textarea {
+      min-height: 86px;
+      resize: vertical;
+      line-height: 1.55;
+    }
+
+    label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .app {
+      min-height: 112vh;
+      padding-top: calc(8vh + 4px);
+    }
+
+    .menu-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 8%;
+      background-color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .menu-content {
+      width: 1080px;
+      height: 100%;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .menu-left,
+    .menu-right {
+      display: flex;
+      align-items: center;
+    }
+
+    .menu-item {
+      color: white;
+      text-decoration: none;
+      margin: 0 10px;
+      line-height: 1;
+    }
+
+    .dropdown {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      height: 100%;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      top: 100%;
+      background-color: #333;
+      box-shadow: 0 8px 16px rgba(0,0,0,.2);
+      white-space: nowrap;
+      z-index: 120;
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    .dropdown-content a {
+      color: white;
+      text-decoration: none;
+      display: block;
+      padding: 10px;
+    }
+
+    .dropdown-content a.active {
+      background: #454545;
+      color: #bff0c5;
+    }
+
+    .mobile-menu-checkbox,
+    .mobile-menu-icon,
+    .mobile-menu-overlay {
+      display: none;
+    }
+
+    .page-shell {
+      width: calc(100vw - 24px);
+      margin: 0 auto 8px;
+      min-height: calc(112vh - 8vh - 8px);
+      height: auto;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .page-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 4px;
+    }
+
+    .page-heading h1 {
+      margin: 0;
+      font-size: 18px;
+      color: var(--ink);
+    }
+
+    .page-heading p {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .heading-breadcrumb-wrap {
+      display: flex;
+      align-items: center;
+      min-height: 36px;
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0;
+      min-height: 28px;
+      margin: 0;
+      color: #606266;
+      font-size: 14px;
+    }
+
+    .breadcrumb button {
+      min-height: 28px;
+      border: 0;
+      background: transparent;
+      padding: 0;
+      color: #606266;
+      font-weight: 500;
+    }
+
+    .breadcrumb button:hover {
+      background: transparent;
+      color: var(--blue);
+    }
+
+    .breadcrumb button:first-child {
+      font-weight: 700;
+      color: #303133;
+    }
+
+    .breadcrumb .crumb-separator {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      color: #c0c4cc;
+      font-size: 12px;
+    }
+
+    .breadcrumb strong {
+      color: #303133;
+      font-weight: 700;
+    }
+
+    .instance-title-bar {
+      display: grid;
+      grid-template-columns: 132px minmax(260px, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      background: #fff;
+      border: 1px solid var(--line-soft);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 10px 14px;
+      margin-bottom: 8px;
+    }
+
+    .instance-title-bar label {
+      margin: 0;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .instance-title-bar input {
+      min-height: 42px;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .instance-title-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .instance-display {
+      min-height: 42px;
+      display: flex;
+      align-items: center;
+      color: var(--ink);
+      font-size: 18px;
+      font-weight: 800;
+      border: 1px solid transparent;
+      border-radius: 7px;
+      padding: 0 10px;
+      background: #fbfcfe;
+    }
+
+    .instance-display.muted {
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .cloud-path-row {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: 132px minmax(260px, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .cloud-path-row label {
+      margin: 0;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .instance-name-strong {
+      color: var(--ink);
+      font-weight: 800;
+    }
+
+    .page-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .top-progress {
+      background: var(--panel);
+      border: 1px solid var(--line-soft);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 6px 14px 5px;
+      margin-bottom: 6px;
+      overflow-x: auto;
+    }
+
+    .top-progress .progress {
+      display: none;
+    }
+
+    .progress-head {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 4px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .progress-head strong {
+      color: var(--ink);
+      font-size: 14px;
+    }
+
+    .progress-steps {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+      min-width: 1120px;
+      margin-top: 2px;
+      padding: 4px 4px 0;
+    }
+
+    .progress-step {
+      position: relative;
+      flex: 1 0 120px;
+      min-height: 38px;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      color: #94a3b8;
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-start;
+      flex-direction: column;
+      font-size: 12px;
+      white-space: nowrap;
+      overflow: visible;
+      padding: 0 10px 0 0;
+      cursor: pointer;
+    }
+
+    .progress-step:hover {
+      background: transparent;
+    }
+
+    .progress-step::before {
+      content: "";
+      position: absolute;
+      left: 18px;
+      right: 0;
+      top: 13px;
+      height: 2px;
+      background: #c7ced8;
+      z-index: 0;
+    }
+
+    .progress-step:last-child::before {
+      display: none;
+    }
+
+    .progress-step .step-node {
+      position: relative;
+      z-index: 1;
+      width: 27px;
+      height: 27px;
+      border-radius: 50%;
+      border: 2px solid #c7ced8;
+      background: white;
+      color: #94a3b8;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 3px;
+    }
+
+    .progress-step .step-label {
+      max-width: 118px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: inherit;
+      font-weight: 700;
+    }
+
+    .progress-step.done {
+      color: var(--green);
+      font-weight: 700;
+    }
+
+    .progress-step.done::before {
+      background: #8fd0ad;
+    }
+
+    .progress-step.done .step-node {
+      border-color: var(--green);
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .progress-step.current {
+      color: var(--blue);
+      font-weight: 700;
+    }
+
+    .progress-step.current .step-node {
+      border-color: var(--blue);
+      background: white;
+      color: var(--blue);
+      box-shadow: 0 0 0 4px var(--blue-soft);
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 300px minmax(420px, 1fr) 350px;
+      gap: 16px;
+      min-width: 0;
+      min-height: calc(100vh - 230px);
+      height: clamp(760px, calc(100vh - 230px), 920px);
+      overflow: hidden;
+    }
+
+    .view-hidden {
+      display: none !important;
+    }
+
+    .catalog-view {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 260px minmax(520px, 1fr);
+      gap: 16px;
+      overflow: hidden;
+    }
+
+    .department-list {
+      display: grid;
+      gap: 8px;
+      padding: 14px;
+      overflow-y: auto;
+    }
+
+    .department-button {
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      text-align: left;
+      padding: 0 12px;
+      border-radius: 8px;
+    }
+
+    .department-button.active {
+      border-color: var(--blue);
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-weight: 700;
+    }
+
+    .catalog-main {
+      overflow-y: auto;
+      min-height: 0;
+      padding-right: 4px;
+    }
+
+    .catalog-toolbar {
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) 180px;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .search-field {
+      position: relative;
+      min-width: 0;
+    }
+
+    .search-field input {
+      padding-right: 38px;
+    }
+
+    .search-clear {
+      position: absolute;
+      top: 50%;
+      right: 8px;
+      width: 24px;
+      min-width: 24px;
+      height: 24px;
+      min-height: 24px;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      color: #94a3b8;
+      transform: translateY(-50%);
+    }
+
+    .search-clear:hover {
+      background: #eef2f7;
+      color: var(--ink);
+    }
+
+    .search-clear.view-hidden {
+      display: none;
+    }
+
+    .template-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(220px, 1fr));
+      gap: 14px;
+      margin-bottom: 10px;
+    }
+
+    .template-card {
+      background: white;
+      border: 1px solid var(--line-soft);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 15px;
+      min-height: 210px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      cursor: pointer;
+      transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+    }
+
+    .template-card:hover {
+      border-color: #a9bdf8;
+      box-shadow: 0 12px 28px rgba(37, 99, 235, .12);
+      transform: translateY(-1px);
+    }
+
+    .template-card h3 {
+      margin: 0;
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.35;
+    }
+
+    .template-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+      flex: 1;
+    }
+
+    .template-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .template-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .instance-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border: 1px solid var(--line-soft);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .instance-table th,
+    .instance-table td {
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--line-soft);
+      text-align: left;
+      font-size: 13px;
+      vertical-align: middle;
+    }
+
+    .instance-table th {
+      background: #f2f5f9;
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .instance-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 44px;
+      margin: 6px 0 16px;
+      color: var(--text);
+    }
+
+    .pagination button {
+      min-width: 34px;
+      min-height: 34px;
+      padding: 0 10px;
+      border: 0;
+      background: transparent;
+      font-weight: 700;
+    }
+
+    .pagination-total,
+    .pagination-jumper {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 400;
+      margin: 0 8px;
+    }
+
+    .pagination-jumper {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pagination-jumper input {
+      width: 62px;
+      min-height: 32px;
+      padding: 4px 8px;
+      text-align: center;
+    }
+
+    .pagination button:hover {
+      background: #eef4ff;
+      color: var(--blue);
+    }
+
+    .pagination button.active {
+      color: var(--blue);
+      background: transparent;
+    }
+
+    .pagination button:disabled {
+      color: #b8c0cc;
+      background: transparent;
+      opacity: 1;
+    }
+
+    .pagination span {
+      padding: 0 8px;
+      font-weight: 700;
+    }
+
+    .flow-records-view {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 320px minmax(520px, 1fr);
+      gap: 16px;
+      overflow: hidden;
+    }
+
+    .flow-record-summary {
+      overflow-y: auto;
+      min-height: 0;
+    }
+
+    .record-main {
+      overflow-y: auto;
+      min-height: 0;
+      padding-right: 4px;
+    }
+
+    .record-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .record-tab {
+      min-width: 116px;
+    }
+
+    .record-tab.active {
+      border-color: var(--blue);
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-weight: 700;
+    }
+
+    .template-designer {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 320px minmax(520px, 1fr);
+      gap: 16px;
+      overflow: hidden;
+    }
+
+    .designer-steps,
+    .designer-main {
+      overflow-y: auto;
+      min-height: 0;
+    }
+
+    .template-designer > .panel {
+      min-height: 0;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .designer-main {
+      padding-right: 4px;
+    }
+
+    .designer-step {
+      padding: 13px 15px;
+      border-bottom: 1px solid var(--line-soft);
+      cursor: pointer;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .designer-step.active {
+      background: var(--blue-soft);
+      border-left: 4px solid var(--blue);
+      padding-left: 11px;
+    }
+
+    .designer-step strong {
+      display: block;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+
+    .designer-step span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .designer-step-actions {
+      display: flex;
+      gap: 4px;
+    }
+
+    .designer-step-actions button {
+      width: 30px;
+      min-height: 30px;
+      padding: 0;
+      line-height: 1;
+      font-size: 13px;
+    }
+
+    .designer-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(220px, 1fr));
+      gap: 14px;
+      padding-bottom: 18px;
+    }
+
+    .designer-box {
+      background: white;
+      border: 1px solid var(--line-soft);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 16px;
+    }
+
+    .designer-box h3 {
+      margin: 0 0 12px;
+      color: var(--ink);
+      font-size: 15px;
+    }
+
+    .field-chip-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line-soft);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      min-width: 0;
+    }
+
+    .workspace > .panel {
+      min-height: 0;
+    }
+
+    .workspace > aside.panel {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-header {
+      padding: 16px;
+      border-bottom: 1px solid var(--line-soft);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 15px;
+      color: var(--ink);
+    }
+
+    .panel-subtitle {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .flow-summary {
+      padding: 14px 16px 16px;
+      border-bottom: 1px solid var(--line-soft);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .metric {
+      border: 1px solid var(--line-soft);
+      border-radius: 7px;
+      padding: 10px;
+      background: #fbfcfe;
+      min-height: 66px;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 5px;
+    }
+
+    .metric strong {
+      font-size: 17px;
+      color: var(--ink);
+    }
+
+    .progress {
+      height: 9px;
+      border-radius: 99px;
+      background: #e8edf4;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, #1f8a5b, #2563eb);
+      transition: width .25s ease;
+    }
+
+    .step-list {
+      overflow: auto;
+      max-height: none;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .step-item {
+      display: grid;
+      grid-template-columns: 28px 1fr auto;
+      gap: 10px;
+      align-items: start;
+      padding: 13px 15px;
+      border-bottom: 1px solid var(--line-soft);
+      cursor: pointer;
+    }
+
+    .step-item:hover {
+      background: #fafcff;
+    }
+
+    .step-item.active {
+      background: var(--blue-soft);
+      border-left: 4px solid var(--blue);
+      padding-left: 11px;
+    }
+
+    .step-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid var(--line);
+      color: var(--muted);
+      background: white;
+    }
+
+    .step-item.done .step-dot {
+      border-color: var(--green);
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .step-item.current .step-dot {
+      border-color: var(--blue);
+      background: var(--blue);
+      color: white;
+    }
+
+    .step-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1.35;
+    }
+
+    .step-meta {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 24px;
+      padding: 0 8px;
+      border-radius: 99px;
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .badge.green {
+      border-color: #a6d8bf;
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .badge.blue {
+      border-color: #b8ccff;
+      background: var(--blue-soft);
+      color: var(--blue);
+    }
+
+    .badge.amber {
+      border-color: #f1d28f;
+      background: var(--amber-soft);
+      color: var(--amber);
+    }
+
+    .detail {
+      overflow: auto;
+      max-height: none;
+      height: 100%;
+      min-height: 0;
+    }
+
+    .hero {
+      padding: 18px;
+      border-bottom: 1px solid var(--line-soft);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .hero h2 {
+      margin: 0;
+      font-size: 22px;
+      color: var(--ink);
+    }
+
+    .hero .desc {
+      margin: 8px 0 0;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 13px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .content-section {
+      padding: 18px;
+      border-bottom: 1px solid var(--line-soft);
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 13px;
+    }
+
+    .section-title h3 {
+      margin: 0;
+      font-size: 15px;
+      color: var(--ink);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 13px;
+    }
+
+    .form-grid .wide {
+      grid-column: 1 / -1;
+    }
+
+    .radio-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .choice {
+      position: relative;
+    }
+
+    .choice input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .choice span {
+      display: inline-flex;
+      min-height: 34px;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 0 12px;
+      background: white;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .choice input:checked + span {
+      border-color: var(--blue);
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-weight: 700;
+    }
+
+    .assignment {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr auto;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .task-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .task-row {
+      display: grid;
+      grid-template-columns: 1fr 145px 100px 92px;
+      gap: 10px;
+      align-items: center;
+      padding: 11px;
+      border: 1px solid var(--line-soft);
+      border-radius: 7px;
+      background: #fbfcfe;
+    }
+
+    .task-main strong {
+      display: block;
+      color: var(--ink);
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .task-main span {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .task-owner {
+      color: var(--text);
+      font-size: 12px;
+    }
+
+    .signature-list {
+      display: grid;
+      gap: 9px;
+    }
+
+    .signature {
+      border-left: 3px solid var(--green);
+      background: var(--green-soft);
+      border-radius: 7px;
+      padding: 10px 12px;
+      color: #14523a;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .side {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      max-height: none;
+      height: 100%;
+      min-width: 0;
+      overflow: hidden;
+      padding-right: 4px;
+    }
+
+    .side .panel {
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      min-height: 0;
+      flex: 0 0 auto;
+    }
+
+    .side .panel:last-child {
+      flex: 1 1 200px;
+      display: flex;
+      flex-direction: column;
+      min-height: 190px;
+    }
+
+    .mini-body {
+      padding: 14px 16px;
+      min-height: 0;
+    }
+
+    .kv {
+      display: grid;
+      gap: 9px;
+      font-size: 13px;
+    }
+
+    .kv-row {
+      display: grid;
+      grid-template-columns: 86px 1fr;
+      gap: 8px;
+      align-items: start;
+    }
+
+    .kv-row span {
+      color: var(--muted);
+    }
+
+    .kv-row strong {
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .timeline {
+      overflow: auto;
+      max-height: none;
+      flex: 1;
+      min-height: 120px;
+      padding: 12px 16px 16px;
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+
+    .event {
+      border: 1px solid var(--line-soft);
+      border-radius: 7px;
+      padding: 10px;
+      background: #fbfcfe;
+    }
+
+    .event strong {
+      display: block;
+      color: var(--ink);
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .event p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .doc-preview {
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      overflow: hidden;
+      background: white;
+      max-height: 140px;
+      min-height: 120px;
+      overflow-y: auto;
+    }
+
+    .doc-row {
+      display: grid;
+      grid-template-columns: 88px 1fr 82px 70px;
+      border-bottom: 1px solid var(--line-soft);
+      min-height: 42px;
+    }
+
+    .doc-row:last-child {
+      border-bottom: 0;
+    }
+
+    .doc-row div {
+      padding: 9px;
+      border-right: 1px solid var(--line-soft);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .doc-row div:last-child {
+      border-right: 0;
+    }
+
+    .doc-head {
+      background: #eef2f7;
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      max-width: 440px;
+      padding: 13px 15px;
+      background: #172033;
+      color: white;
+      border-radius: 8px;
+      box-shadow: 0 16px 36px rgba(15, 23, 42, .22);
+      transform: translateY(20px);
+      opacity: 0;
+      pointer-events: none;
+      transition: .22s ease;
+      font-size: 13px;
+      line-height: 1.5;
+      z-index: 20;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .readonly-note {
+      display: none;
+      margin-top: 10px;
+      padding: 9px 10px;
+      border-radius: 7px;
+      background: var(--amber-soft);
+      color: var(--amber);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .readonly-note.show {
+      display: block;
+    }
+
+    @media (max-width: 1180px) {
+      .workspace {
+        grid-template-columns: 280px 1fr;
+      }
+
+      .catalog-view {
+        grid-template-columns: 1fr;
+        overflow: auto;
+      }
+
+      .flow-records-view {
+        grid-template-columns: 1fr;
+        overflow: auto;
+      }
+
+      .template-designer {
+        grid-template-columns: 1fr;
+        overflow: auto;
+      }
+
+      .template-grid {
+        grid-template-columns: repeat(2, minmax(220px, 1fr));
+      }
+
+      .side {
+        grid-column: 1 / -1;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        max-height: none;
+        overflow-y: visible;
+      }
+
+      .side .panel:last-child {
+        grid-column: 1 / -1;
+      }
+
+      .timeline {
+        max-height: 320px;
+      }
+    }
+
+    @media (max-width: 820px) {
+      .app {
+        padding-top: 62px;
+      }
+
+      .menu-bar {
+        height: 50px;
+        justify-content: flex-start;
+        padding: 0 10px;
+      }
+
+      .mobile-menu-icon {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 32px;
+        height: 32px;
+        cursor: pointer;
+        z-index: 130;
+      }
+
+      .mobile-menu-icon span {
+        display: block;
+        width: 22px;
+        height: 3px;
+        margin: 3px 0;
+        background: #fff;
+        border-radius: 2px;
+      }
+
+      .menu-content {
+        position: fixed;
+        top: 0;
+        left: -72%;
+        width: 72%;
+        height: 100vh;
+        background: #333;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+        padding-top: 60px;
+        transition: left .25s ease;
+        z-index: 120;
+      }
+
+      .menu-left,
+      .menu-right {
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .menu-item {
+        margin: 10px 16px;
+      }
+
+      .dropdown {
+        height: auto;
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+      }
+
+      .dropdown-content {
+        position: static;
+        display: block;
+        box-shadow: none;
+        padding-left: 18px;
+      }
+
+      .mobile-menu-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,.3);
+        z-index: 110;
+      }
+
+      .mobile-menu-checkbox:checked ~ .menu-content {
+        left: 0;
+      }
+
+      .mobile-menu-checkbox:checked ~ .mobile-menu-overlay {
+        display: block;
+      }
+
+      .page-shell {
+        width: calc(100vw - 20px);
+        height: auto;
+        min-height: 0;
+      }
+
+      .page-heading {
+        flex-direction: column;
+      }
+
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .catalog-toolbar,
+      .template-grid,
+      .designer-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .instance-title-bar {
+        grid-template-columns: 1fr;
+      }
+
+      .side {
+        grid-template-columns: 1fr;
+      }
+
+      .form-grid,
+      .assignment,
+      .task-row,
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-actions {
+        justify-content: flex-start;
+      }
+
+      .step-list,
+      .detail {
+        max-height: none;
+      }
+
+      .doc-row {
+        grid-template-columns: 76px 1fr;
+      }
+
+      .doc-row div:nth-child(3),
+      .doc-row div:nth-child(4) {
+        border-top: 1px solid var(--line-soft);
+      }
+    }
+
+    @media (max-width: 620px) {
+      .progress-head {
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+
+      .progress-steps {
+        display: flex;
+        min-width: 900px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="menu-bar">
+      <input type="checkbox" id="mobile-menu-toggle" class="mobile-menu-checkbox">
+      <label for="mobile-menu-toggle" class="mobile-menu-icon">
+        <span></span><span></span><span></span>
+      </label>
+
+      <div class="menu-content">
+        <div class="menu-left">
+          <a href="/server" class="menu-item">首页</a>
+          <div class="dropdown">
+            <a class="menu-item">订单</a>
+            <div class="dropdown-content">
+              <a href="/server/salesContract">销售合同</a>
+              <a href="/server/orderAccountExport">订单台账导出</a>
+            </div>
+          </div>
+          <div class="dropdown">
+            <a class="menu-item">管理</a>
+            <div class="dropdown-content">
+              <a href="/server/distStockManage">经销商库存管理</a>
+              <a href="/server/customizeManage">定制产品管理</a>
+              <a href="/server/addNewProduct">新增产品</a>
+              <a href="/server/productManage">产品管理</a>
+              <a href="/server/annualClientManage">客户管理</a>
+              <a class="active" href="release-flow-demo.html">流程管理</a>
+            </div>
+          </div>
+          <div class="dropdown">
+            <a class="menu-item">设置</a>
+            <div class="dropdown-content">
+              <a href="/admin/reset_password_page">重置密码</a>
+              <a href="/server/errorTraceManage">错误追踪解析</a>
+            </div>
+          </div>
+        </div>
+        <div class="menu-right">
+          <div class="dropdown">
+            <a class="menu-item">账户</a>
+            <div class="dropdown-content">
+              <a href="/logout">登出</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <label for="mobile-menu-toggle" class="mobile-menu-overlay"></label>
+    </div>
+
+    <div class="page-shell">
+      <div class="page-heading">
+        <div class="heading-breadcrumb-wrap">
+          <h1 id="pageTitle" class="view-hidden">流程管理</h1>
+          <p id="pageSubtitle" class="view-hidden">按部门选择流程模板，创建或进入正在执行的流程。</p>
+          <nav class="breadcrumb" id="breadcrumb"></nav>
+        </div>
+        <div class="page-actions" id="catalogActions">
+          <button type="button" class="primary" id="newTemplateBtn"><i class="el-icon-plus"></i>新增流程模板</button>
+        </div>
+        <div class="page-actions view-hidden" id="detailActions">
+          <button type="button" id="backCatalogBtn"><i class="el-icon-back"></i>返回流程列表</button>
+          <button type="button" id="resetBtn"><i class="el-icon-refresh-left"></i>重置演示</button>
+          <button type="button" class="primary" id="exportBtn"><i class="el-icon-document-checked"></i>生成查检表</button>
+        </div>
+        <div class="page-actions view-hidden" id="designerActions">
+          <button type="button" id="backCatalogFromDesignerBtn"><i class="el-icon-back"></i>返回流程列表</button>
+          <button type="button"><i class="el-icon-check"></i>保存模板</button>
+          <button type="button" class="primary" id="startFromDesignerBtn"><i class="el-icon-video-play"></i>使用此模板发起流程</button>
+        </div>
+        <div class="page-actions view-hidden" id="recordActions">
+          <button type="button" id="backCatalogFromRecordsBtn"><i class="el-icon-back"></i>返回流程列表</button>
+          <button type="button" id="configFromRecordsBtn"><i class="el-icon-setting"></i>配置模板</button>
+          <button type="button" class="primary" id="newFlowInstanceBtn"><i class="el-icon-plus"></i>新建流程</button>
+        </div>
+      </div>
+
+      <section class="instance-title-bar view-hidden" id="instanceTitleBar">
+        <label for="instanceNameInput">流程实例名称</label>
+        <input id="instanceNameInput" type="text" value="Semea X1 产品发布">
+        <div class="instance-display view-hidden" id="instanceNameDisplay">Semea X1 产品发布</div>
+        <div class="instance-title-actions">
+          <button type="button" id="editInstanceMetaBtn" class="view-hidden"><i class="el-icon-edit"></i>编辑</button>
+          <button type="button" id="cancelInstanceNameBtn">取消</button>
+          <button type="button" class="primary" id="confirmInstanceNameBtn"><i class="el-icon-check"></i>确认</button>
+        </div>
+        <div class="cloud-path-row">
+          <label for="cloudDocPathInput">共享盘路径</label>
+          <input id="cloudDocPathInput" type="text" placeholder="填写内网共享盘路径，例如 \\server\市场销售部\产品Release\Semea X1">
+          <div class="instance-display muted view-hidden" id="cloudDocPathDisplay">未填写共享盘路径</div>
+          <button type="button" id="openCloudDocBtn"><i class="el-icon-document"></i>复制路径</button>
+        </div>
+      </section>
+
+      <section class="top-progress view-hidden" id="detailProgress">
+        <div class="progress-head">
+          <span>流程实例：<strong id="topInstanceName">Semea X1 产品发布</strong></span>
+          <span>当前节点：<strong id="topCurrentStep">-</strong></span>
+          <span>整体完成：<strong id="topDoneMetric">0/0</strong></span>
+        </div>
+        <div class="progress" aria-label="整体进度">
+          <div class="progress-bar" id="topProgressBar"></div>
+        </div>
+        <div class="progress-steps" id="progressSteps"></div>
+      </section>
+
+      <main class="catalog-view" id="catalogView">
+        <aside class="panel">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">部门</h2>
+              <p class="panel-subtitle">不同部门维护自己的流程模板</p>
+            </div>
+          </div>
+          <div class="mini-body" style="padding-bottom:0;">
+            <div class="search-field">
+              <input id="departmentSearch" type="text" placeholder="搜索部门">
+              <button type="button" class="search-clear view-hidden" id="clearDepartmentSearch" aria-label="清除部门搜索"><i class="el-icon-close"></i></button>
+            </div>
+          </div>
+          <div class="department-list" id="departmentList"></div>
+        </aside>
+
+        <section class="catalog-main">
+          <div class="catalog-toolbar">
+            <div class="search-field">
+              <input id="templateSearch" type="text" placeholder="搜索流程名称、场景或负责人">
+              <button type="button" class="search-clear view-hidden" id="clearTemplateSearch" aria-label="清除流程搜索"><i class="el-icon-close"></i></button>
+            </div>
+            <select id="templateStatusFilter">
+              <option value="all">全部状态</option>
+              <option value="active">启用中</option>
+              <option value="draft">草稿</option>
+            </select>
+          </div>
+
+          <div class="template-grid" id="templateGrid"></div>
+          <div class="pagination" id="templatePagination"></div>
+
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2 class="panel-title">最近流程</h2>
+                <p class="panel-subtitle">进入流程后可查看正在进行和历史记录</p>
+              </div>
+            </div>
+            <div class="mini-body">
+              <table class="instance-table">
+                <thead>
+                  <tr>
+                    <th>流程实例</th>
+                    <th>部门</th>
+                    <th>当前节点</th>
+                    <th>负责人</th>
+                    <th>进度</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody id="instanceRows"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+      </main>
+
+      <main class="flow-records-view view-hidden" id="recordsView">
+        <aside class="panel flow-record-summary">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title" id="recordsTemplateName">流程名称</h2>
+              <p class="panel-subtitle" id="recordsTemplateDesc">流程说明</p>
+            </div>
+          </div>
+          <div class="mini-body kv">
+            <div class="kv-row"><span>所属部门</span><strong id="recordsDepartment">-</strong></div>
+            <div class="kv-row"><span>默认负责人</span><strong id="recordsOwner">-</strong></div>
+            <div class="kv-row"><span>模板版本</span><strong id="recordsVersion">-</strong></div>
+            <div class="kv-row"><span>步骤数</span><strong id="recordsStepCount">-</strong></div>
+            <div class="kv-row"><span>模板状态</span><strong id="recordsTemplateStatus">-</strong></div>
+          </div>
+        </aside>
+
+        <section class="record-main">
+          <div class="record-tabs">
+            <button type="button" class="record-tab active" data-record-tab="active">正在进行</button>
+            <button type="button" class="record-tab" data-record-tab="history">历史流程</button>
+          </div>
+          <table class="instance-table">
+            <thead>
+              <tr>
+                <th>流程实例</th>
+                <th>状态</th>
+                <th>当前/完成节点</th>
+                <th>负责人</th>
+                <th>进度</th>
+                <th>更新时间</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="recordRows"></tbody>
+          </table>
+        </section>
+      </main>
+
+      <main class="template-designer view-hidden" id="designerView">
+        <aside class="panel">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">模板步骤</h2>
+              <p class="panel-subtitle">维护步骤、字段、默认负责人和完成规则</p>
+            </div>
+            <button type="button" class="primary" id="addDesignerStepBtn"><i class="el-icon-plus"></i>新增步骤</button>
+          </div>
+          <div class="designer-steps" id="designerSteps"></div>
+        </aside>
+
+        <section class="designer-main">
+          <div class="designer-grid">
+            <div class="designer-box">
+              <h3>基础信息</h3>
+              <div class="form-grid">
+                <div class="wide">
+                  <label>流程名称</label>
+                  <input id="designerName" type="text">
+                </div>
+                <div>
+                  <label>所属部门</label>
+                  <input id="designerDepartment" type="text">
+                </div>
+                <div>
+                  <label>模板状态</label>
+                  <select id="designerStatus">
+                    <option>启用中</option>
+                    <option>草稿</option>
+                  </select>
+                </div>
+                <div class="wide">
+                  <label>使用场景</label>
+                  <textarea id="designerDesc"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="designer-box">
+              <h3>当前步骤配置</h3>
+              <div class="form-grid">
+                <div>
+                  <label>步骤名称</label>
+                  <input id="designerStepName" type="text">
+                </div>
+                <div>
+                  <label>默认负责人</label>
+                  <select id="designerOwner"></select>
+                </div>
+                <div>
+                  <label>分配方式</label>
+                  <select>
+                    <option>单人任务</option>
+                    <option>多人会签</option>
+                    <option>组任务</option>
+                  </select>
+                </div>
+                <div>
+                  <label>完成规则</label>
+                  <select>
+                    <option>任一人完成</option>
+                    <option>全部完成</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="designer-box">
+              <h3>页面填写字段</h3>
+              <div class="field-chip-list" id="designerFields"></div>
+            </div>
+
+            <div class="designer-box">
+              <h3>通知与归档</h3>
+              <div class="form-grid">
+                <div>
+                  <label>通知方式</label>
+                  <select>
+                    <option>企业微信群机器人</option>
+                    <option>企业微信个人消息</option>
+                    <option>邮件</option>
+                  </select>
+                </div>
+                <div>
+                  <label>归档输出</label>
+                  <select>
+                    <option>生成 Word 查检表</option>
+                    <option>仅系统归档</option>
+                  </select>
+                </div>
+                <div class="wide">
+                  <label>模板说明</label>
+                  <textarea>这里后续会保存字段映射关系，用于把页面填写内容汇总到 Word 模板。</textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <main class="workspace view-hidden" id="detailView">
+      <aside class="panel">
+        <div class="panel-header">
+          <div>
+            <h2 class="panel-title">流程进度</h2>
+            <p class="panel-subtitle">示例：<span class="instance-name-strong" id="leftInstanceName">Semea X1 产品发布</span></p>
+          </div>
+          <span class="badge blue" id="currentOwnerBadge">当前：Sandra</span>
+        </div>
+        <div class="flow-summary">
+          <div class="summary-grid">
+            <div class="metric">
+              <span>整体完成</span>
+              <strong id="doneMetric">0/0</strong>
+            </div>
+            <div class="metric">
+              <span>当前步骤</span>
+              <strong id="currentMetric">-</strong>
+            </div>
+          </div>
+          <div class="progress" aria-label="整体进度">
+            <div class="progress-bar" id="progressBar"></div>
+          </div>
+        </div>
+        <div class="step-list" id="stepList"></div>
+      </aside>
+
+      <section class="panel detail">
+        <div class="hero">
+          <div>
+            <h2 id="stepTitle">步骤标题</h2>
+            <p class="desc" id="stepDesc"></p>
+          </div>
+          <div class="hero-actions">
+            <button type="button" id="remindBtn"><i class="el-icon-message"></i>催办</button>
+            <button type="button" id="editDoneBtn"><i class="el-icon-edit"></i>修改已完成内容</button>
+            <button type="button" class="primary" id="saveRevisionBtn"><i class="el-icon-check"></i>保存修订</button>
+            <button type="button" class="success" id="completeStepBtn"><i class="el-icon-document-checked"></i>完成当前任务</button>
+          </div>
+        </div>
+
+        <section class="content-section">
+          <div class="section-title">
+            <h3>本步骤填写</h3>
+            <span class="badge" id="requiredBadge">必填项 0</span>
+          </div>
+          <div class="form-grid" id="dynamicForm"></div>
+          <div class="readonly-note" id="readonlyNote">此步骤已完成。发现填写内容不对时，可以点击“修改已完成内容”，保存后会追加一条修订记录。</div>
+        </section>
+
+        <section class="content-section">
+          <div class="section-title">
+            <h3>责任分配</h3>
+            <span class="badge amber" id="ruleBadge">完成规则</span>
+          </div>
+          <div class="assignment">
+            <div>
+              <label for="assignMode">分配类型</label>
+              <select id="assignMode">
+                <option value="user">指定人员</option>
+                <option value="group">指定小组</option>
+              </select>
+            </div>
+            <div>
+              <label for="assigneeSelect">人员或小组</label>
+              <select id="assigneeSelect"></select>
+            </div>
+            <div>
+              <label for="ruleSelect">完成规则</label>
+              <select id="ruleSelect">
+                <option value="any">任一人完成</option>
+                <option value="all">全部完成</option>
+              </select>
+            </div>
+            <button type="button" class="primary" id="assignBtn"><i class="el-icon-check"></i>应用分配</button>
+          </div>
+        </section>
+
+        <section class="content-section" id="subtaskSection">
+          <div class="section-title">
+            <h3>步骤内子任务</h3>
+            <span class="badge blue" id="taskMetric">0/0</span>
+          </div>
+          <div class="task-list" id="taskList"></div>
+        </section>
+
+        <section class="content-section">
+          <div class="section-title">
+            <h3>签名记录</h3>
+            <span class="badge green" id="signatureCount">0 条</span>
+          </div>
+          <div class="signature-list" id="signatureList"></div>
+        </section>
+      </section>
+
+      <aside class="side">
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">流程信息</h2>
+              <p class="panel-subtitle">最后归档到 Word 查检表</p>
+            </div>
+          </div>
+          <div class="mini-body kv">
+            <div class="kv-row"><span>实例名称</span><strong id="sideInstanceName">Semea X1 产品发布</strong></div>
+            <div class="kv-row"><span>共享盘</span><strong><button type="button" id="sideOpenCloudDocBtn"><i class="el-icon-document"></i>打开共享文件夹</button></strong></div>
+            <div class="kv-row"><span>PN</span><strong id="pnValue">待填写</strong></div>
+            <div class="kv-row"><span>销售区域</span><strong id="areaValue">全球</strong></div>
+            <div class="kv-row"><span>产品类型</span><strong id="typeValue">新品</strong></div>
+            <div class="kv-row"><span>归档状态</span><strong id="archiveValue">进行中</strong></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">文档预览</h2>
+              <p class="panel-subtitle">完成后自动汇总为现有查检表</p>
+            </div>
+          </div>
+          <div class="mini-body">
+            <div class="doc-preview" id="docPreview"></div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2 class="panel-title">通知与操作日志</h2>
+              <p class="panel-subtitle">模拟微信机器人通知</p>
+            </div>
+          </div>
+          <div class="timeline" id="timeline"></div>
+        </section>
+      </aside>
+      </main>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const users = ["Zak", "Sandra", "刘依宁", "陈辉", "Gary", "Yolanda", "Jervis", "马金玲", "研发测试组"];
+    const flowTemplates = [
+      {
+        id: "release-market-sales",
+        department: "市场销售部",
+        name: "产品 Release 市场销售部流程",
+        status: "active",
+        owner: "Zak",
+        steps: 9,
+        version: "Ver. 032025",
+        desc: "产品发布前后检查、多人会签、微信通知、最终汇总为查检表。",
+        tags: ["产品发布", "会签", "生成 Word"]
+      },
+      {
+        id: "price-change",
+        department: "市场销售部",
+        name: "价格调整审批流程",
+        status: "draft",
+        owner: "Yolanda",
+        steps: 6,
+        version: "草稿",
+        desc: "用于国内外价格调整、价格表归档、销售团队通知。",
+        tags: ["价格", "审批", "通知"]
+      },
+      {
+        id: "custom-order",
+        department: "销售运营",
+        name: "定制订单评审流程",
+        status: "active",
+        owner: "Sandra",
+        steps: 7,
+        version: "Ver. 012026",
+        desc: "定制需求、库存影响、报价、交期和客户确认的协同流程。",
+        tags: ["定制", "订单", "评审"]
+      },
+      {
+        id: "datasheet-review",
+        department: "研发测试部",
+        name: "规格书数据审查流程",
+        status: "active",
+        owner: "陈辉",
+        steps: 5,
+        version: "Ver. 052026",
+        desc: "测试数据提交、技术审查、规格书数据确认和归档。",
+        tags: ["数据", "规格书", "研发"]
+      },
+      {
+        id: "supplier-onboarding",
+        department: "采购部",
+        name: "新供应商导入流程",
+        status: "active",
+        owner: "Gary",
+        steps: 8,
+        version: "Ver. 022026",
+        desc: "供应商资质、样品、价格、合同和系统资料建档。",
+        tags: ["供应商", "采购", "建档"]
+      },
+      {
+        id: "quality-issue",
+        department: "质量部",
+        name: "质量异常处理流程",
+        status: "active",
+        owner: "陈辉",
+        steps: 6,
+        version: "Ver. 042026",
+        desc: "异常登记、原因分析、纠正措施、复验和关闭确认。",
+        tags: ["质量", "异常", "闭环"]
+      },
+      {
+        id: "sample-approval",
+        department: "研发测试部",
+        name: "样品测试申请流程",
+        status: "active",
+        owner: "陈辉",
+        steps: 5,
+        version: "Ver. 032026",
+        desc: "样品需求提交、测试排期、结果确认和报告归档。",
+        tags: ["样品", "测试", "报告"]
+      },
+      {
+        id: "campaign-review",
+        department: "市场销售部",
+        name: "市场活动审批流程",
+        status: "active",
+        owner: "刘依宁",
+        steps: 6,
+        version: "Ver. 052026",
+        desc: "活动方案、预算、素材、发布计划和复盘归档。",
+        tags: ["市场", "活动", "预算"]
+      },
+      {
+        id: "contract-review",
+        department: "销售运营",
+        name: "销售合同评审流程",
+        status: "active",
+        owner: "Yolanda",
+        steps: 7,
+        version: "Ver. 042026",
+        desc: "合同条款、价格、交付、账期和法务意见确认。",
+        tags: ["合同", "销售", "法务"]
+      },
+      {
+        id: "stock-adjust",
+        department: "采购部",
+        name: "库存调整申请流程",
+        status: "draft",
+        owner: "Gary",
+        steps: 4,
+        version: "草稿",
+        desc: "库存异常调整、原因说明、审批和台账记录。",
+        tags: ["库存", "采购", "台账"]
+      }
+    ];
+    const flowInstances = [
+      { templateId: "release-market-sales", name: "Semea X1 产品发布", department: "市场销售部", current: "预确认信息", owner: "Zak", progress: "0/9", status: "active", updatedAt: "2026-05-11 09:20" },
+      { templateId: "release-market-sales", name: "Semea M8 产品发布", department: "市场销售部", current: "发布完成确认", owner: "Zak", progress: "9/9", status: "history", updatedAt: "2026-04-26 17:30" },
+      { templateId: "release-market-sales", name: "Semea T2 产品发布", department: "市场销售部", current: "网站更新", owner: "刘依宁", progress: "8/9", status: "history", updatedAt: "2026-04-18 15:10" },
+      { templateId: "price-change", name: "2026 国内价格表调整", department: "市场销售部", current: "价格审查", owner: "Yolanda", progress: "2/6", status: "active", updatedAt: "2026-05-10 11:42" },
+      { templateId: "custom-order", name: "A-204 定制订单评审", department: "销售运营", current: "报价确认", owner: "Sandra", progress: "3/7", status: "active", updatedAt: "2026-05-11 10:05" },
+      { templateId: "quality-issue", name: "Q-20260511 气室外观异常", department: "质量部", current: "原因分析", owner: "陈辉", progress: "2/6", status: "active", updatedAt: "2026-05-11 08:50" }
+    ];
+    const groups = {
+      "Datasheet Team": ["陈辉", "刘依宁", "Gary", "马金玲", "Sandra"],
+      "市场宣发组": ["刘依宁", "Jervis", "Yolanda"],
+      "研发测试组": ["研发测试组", "陈辉"]
+    };
+
+    const initialSteps = [
+      {
+        name: "预确认信息",
+        owner: "Zak",
+        rule: "any",
+        desc: "确认销售区域、配套产品、相关产品销售区域是否一致。",
+        fields: [
+          { key: "area", label: "销售区域", type: "choice", options: ["全球", "仅国内", "仅海外"], value: "全球", required: true },
+          { key: "paired", label: "是否有配套产品在先发布", type: "choice", options: ["是", "否"], value: "否", required: true },
+          { key: "relatedProduct", label: "相关产品名称", type: "text", value: "", required: false }
+        ],
+        tasks: []
+      },
+      {
+        name: "PN 分配",
+        owner: "Sandra",
+        rule: "all",
+        desc: "确定产品分类，确认是否新建 PN 分配规则，并填写最终 PN。",
+        fields: [
+          { key: "productType", label: "产品分类", type: "choice", options: ["新品", "老产品新款"], value: "新品", required: true },
+          { key: "newPnRule", label: "是否新建 PN 分配规则", type: "choice", options: ["是", "否"], value: "否", required: true },
+          { key: "pn", label: "PN", type: "text", value: "", required: true }
+        ],
+        tasks: [
+          { title: "确定产品分类", owner: "Sandra", status: "pending", note: "新品或老产品新款" },
+          { title: "分配 PN", owner: "Sandra", status: "pending", note: "填写最终 PN" }
+        ]
+      },
+      {
+        name: "品名确定",
+        owner: "Sandra",
+        rule: "any",
+        desc: "确认命名规则，填写中文品名与英文品名。",
+        fields: [
+          { key: "newNameRule", label: "是否新建命名规则", type: "choice", options: ["是", "否"], value: "否", required: true },
+          { key: "cnName", label: "中文品名", type: "text", value: "", required: true },
+          { key: "enName", label: "英文品名", type: "text", value: "", required: true }
+        ],
+        tasks: []
+      },
+      {
+        name: "数据提供",
+        owner: "Sandra",
+        rule: "any",
+        desc: "研发和测试提供产品测试数据表及 release 报告，并归档到云盘。",
+        fields: [
+          { key: "testDataLink", label: "测试数据表链接", type: "text", value: "", required: true },
+          { key: "releaseReportLink", label: "Release 报告链接", type: "text", value: "", required: true }
+        ],
+        tasks: []
+      },
+      {
+        name: "规格书编写",
+        owner: "Datasheet Team",
+        rule: "all",
+        desc: "规格书编写需要多人协作，全部子任务完成后才进入下一步。",
+        fields: [
+          { key: "datasheetLink", label: "Datasheet 链接", type: "text", value: "", required: true },
+          { key: "datasheetRemark", label: "规格书备注", type: "textarea", value: "", required: false }
+        ],
+        tasks: [
+          { title: "数据提供", owner: "研发测试组", status: "pending", note: "提供研发及测试数据" },
+          { title: "数据审查", owner: "陈辉", status: "pending", note: "审查测试数据和关键指标" },
+          { title: "素材提供", owner: "刘依宁 / Gary", status: "pending", note: "提供宣发素材、场景图和亮点" },
+          { title: "素材审查", owner: "Gary", status: "pending", note: "确认素材可用于对外发布" },
+          { title: "成文", owner: "马金玲", status: "pending", note: "完成 Datasheet 正文" },
+          { title: "审查", owner: "刘依宁", status: "pending", note: "市场侧审查" },
+          { title: "最终审查并 Release", owner: "Sandra", status: "pending", note: "最终确认并发布" }
+        ]
+      },
+      {
+        name: "价格确定",
+        owner: "Yolanda",
+        rule: "all",
+        desc: "确认国内与国外价格，按销售区域决定是否全部执行。",
+        fields: [
+          { key: "cnPrice", label: "国内价格确认", type: "text", value: "", required: true },
+          { key: "globalPrice", label: "国外价格确认", type: "text", value: "", required: true }
+        ],
+        tasks: [
+          { title: "价格确认国内", owner: "Yolanda", status: "pending", note: "填写国内价格或价格表链接" },
+          { title: "价格确认国外", owner: "Yolanda", status: "pending", note: "填写国外价格或价格表链接" }
+        ]
+      },
+      {
+        name: "市场宣发",
+        owner: "市场宣发组",
+        rule: "all",
+        desc: "国内推文、LinkedIn、经销商微信推送和必要的国外客户邮件。",
+        fields: [
+          { key: "campaignLink", label: "宣发素材归档链接", type: "text", value: "", required: true },
+          { key: "highlight", label: "是否亮点产品", type: "choice", options: ["是", "否"], value: "是", required: true }
+        ],
+        tasks: [
+          { title: "国内公众号推文", owner: "刘依宁", status: "pending", note: "发布公众号推文" },
+          { title: "LinkedIn Release", owner: "Jervis", status: "pending", note: "发布含 poster 的 announcement" },
+          { title: "经销商微信推送", owner: "Yolanda", status: "pending", note: "推送给国内经销商" },
+          { title: "国外客户邮件", owner: "Jervis", status: "pending", note: "亮点产品或替换产品时执行" }
+        ]
+      },
+      {
+        name: "网站更新",
+        owner: "刘依宁",
+        rule: "any",
+        desc: "公众号推文及 LinkedIn release 后 2 个工作日内更新中英文官网。",
+        fields: [
+          { key: "websiteCn", label: "中文官网链接", type: "text", value: "", required: true },
+          { key: "websiteEn", label: "英文官网链接", type: "text", value: "", required: true }
+        ],
+        tasks: []
+      },
+      {
+        name: "发布完成确认",
+        owner: "Zak",
+        rule: "any",
+        desc: "确认所有子流程完成，各输出已归档，并填写发布日期。",
+        fields: [
+          { key: "releaseDate", label: "发布日期", type: "date", value: "", required: true },
+          { key: "finalArchive", label: "最终归档链接", type: "text", value: "", required: true }
+        ],
+        tasks: []
+      }
+    ];
+
+    let steps;
+    let selectedIndex = 0;
+    let events;
+    let editingCompleted = {};
+    let currentView = "catalog";
+    let selectedDepartment = "全部";
+    let selectedTemplateId = "release-market-sales";
+    let selectedDesignerStep = 0;
+    let designerTemplateSteps = {};
+    let recordTab = "active";
+    let currentInstanceName = "Semea X1 产品发布";
+    let draftInstanceName = currentInstanceName;
+    let currentCloudDocPath = "";
+    let draftCloudDocPath = "";
+    let instanceMetaMode = "view";
+    let templatePage = 1;
+    const templatePageSize = 9;
+
+    const el = (id) => document.getElementById(id);
+
+    function cloneInitialSteps() {
+      return JSON.parse(JSON.stringify(initialSteps)).map((step, index) => ({
+        ...step,
+        id: index + 1,
+        status: index === 0 ? "current" : "pending",
+        signatures: [],
+        assignees: expandAssignees(step.owner)
+      }));
+    }
+
+    function expandAssignees(owner) {
+      if (groups[owner]) return groups[owner].slice();
+      return owner.split("/").map(item => item.trim()).filter(Boolean);
+    }
+
+    function resetDemo() {
+      steps = cloneInitialSteps();
+      selectedIndex = 0;
+      editingCompleted = {};
+      events = [
+        { title: "流程创建", text: `Zak 创建了“${currentInstanceName}”流程，系统通知第 1 步负责人。` },
+        { title: "微信机器人", text: "已发送待办提醒给 Zak：请完成预确认信息。" }
+      ];
+      render();
+      toast("演示已重置。");
+    }
+
+    function showCatalog() {
+      currentView = "catalog";
+      el("catalogView").classList.remove("view-hidden");
+      el("detailView").classList.add("view-hidden");
+      el("designerView").classList.add("view-hidden");
+      el("recordsView").classList.add("view-hidden");
+      el("detailProgress").classList.add("view-hidden");
+      el("instanceTitleBar").classList.add("view-hidden");
+      el("catalogActions").classList.remove("view-hidden");
+      el("detailActions").classList.add("view-hidden");
+      el("designerActions").classList.add("view-hidden");
+      el("recordActions").classList.add("view-hidden");
+      el("pageTitle").textContent = "流程管理";
+      el("pageSubtitle").textContent = "按部门选择流程模板，创建或进入正在执行的流程。";
+      renderBreadcrumb();
+      renderCatalog();
+    }
+
+    function showDetail(templateId = "release-market-sales") {
+      currentView = "detail";
+      selectedTemplateId = templateId;
+      el("catalogView").classList.add("view-hidden");
+      el("designerView").classList.add("view-hidden");
+      el("recordsView").classList.add("view-hidden");
+      el("detailView").classList.remove("view-hidden");
+      el("detailProgress").classList.remove("view-hidden");
+      el("instanceTitleBar").classList.remove("view-hidden");
+      el("catalogActions").classList.add("view-hidden");
+      el("detailActions").classList.remove("view-hidden");
+      el("designerActions").classList.add("view-hidden");
+      el("recordActions").classList.add("view-hidden");
+      const tpl = flowTemplates.find(item => item.id === templateId) || flowTemplates[0];
+      el("pageTitle").textContent = tpl.name;
+      el("pageSubtitle").textContent = `${tpl.department} / ${tpl.version} / 当前实例：${currentInstanceName}`;
+      if (!steps) resetDemo();
+      syncInstanceName();
+      renderBreadcrumb();
+      render();
+    }
+
+    function showDesigner(templateId = "release-market-sales") {
+      currentView = "designer";
+      selectedTemplateId = templateId;
+      selectedDesignerStep = 0;
+      ensureDesignerSteps(templateId);
+      el("catalogView").classList.add("view-hidden");
+      el("detailView").classList.add("view-hidden");
+      el("recordsView").classList.add("view-hidden");
+      el("designerView").classList.remove("view-hidden");
+      el("detailProgress").classList.add("view-hidden");
+      el("instanceTitleBar").classList.add("view-hidden");
+      el("catalogActions").classList.add("view-hidden");
+      el("detailActions").classList.add("view-hidden");
+      el("designerActions").classList.remove("view-hidden");
+      el("recordActions").classList.add("view-hidden");
+      const tpl = flowTemplates.find(item => item.id === templateId) || flowTemplates[0];
+      el("pageTitle").textContent = "配置流程模板";
+      el("pageSubtitle").textContent = `${tpl.department} / ${tpl.name} / 维护步骤、字段、默认负责人和通知规则`;
+      renderBreadcrumb();
+      renderDesigner();
+    }
+
+    function showRecords(templateId = "release-market-sales") {
+      currentView = "records";
+      selectedTemplateId = templateId;
+      recordTab = "active";
+      el("catalogView").classList.add("view-hidden");
+      el("detailView").classList.add("view-hidden");
+      el("designerView").classList.add("view-hidden");
+      el("recordsView").classList.remove("view-hidden");
+      el("detailProgress").classList.add("view-hidden");
+      el("instanceTitleBar").classList.add("view-hidden");
+      el("catalogActions").classList.add("view-hidden");
+      el("detailActions").classList.add("view-hidden");
+      el("designerActions").classList.add("view-hidden");
+      el("recordActions").classList.remove("view-hidden");
+      const tpl = flowTemplates.find(item => item.id === templateId) || flowTemplates[0];
+      el("pageTitle").textContent = tpl.name;
+      el("pageSubtitle").textContent = `${tpl.department} / 查看正在进行和历史流程，新建后进入具体填写页面`;
+      renderBreadcrumb();
+      renderRecords();
+    }
+
+    function renderBreadcrumb() {
+      const tpl = flowTemplates.find(item => item.id === selectedTemplateId);
+      const templateName = tpl ? tpl.name : "";
+      const crumbs = currentView === "catalog"
+        ? [{ label: "流程管理" }]
+        : [{ label: "流程管理", action: "catalog" }];
+      if (currentView === "records") {
+        crumbs.push({ label: templateName });
+      } else if (currentView === "designer") {
+        crumbs.push({ label: templateName, action: "records" });
+        crumbs.push({ label: "配置模板" });
+      } else if (currentView === "detail") {
+        crumbs.push({ label: templateName, action: "records" });
+        crumbs.push({ label: currentInstanceName || "未命名流程实例" });
+      }
+      el("breadcrumb").innerHTML = crumbs.map((crumb, index) => {
+        const item = crumb.action
+          ? `<button type="button" data-crumb="${crumb.action}">${crumb.label}</button>`
+          : `<strong>${crumb.label}</strong>`;
+        if (index === 0) return item;
+        return `<span class="crumb-separator"><i class="el-icon-arrow-right"></i></span>${item}`;
+      }).join("");
+      el("breadcrumb").querySelectorAll("[data-crumb]").forEach(button => {
+        button.addEventListener("click", () => {
+          if (button.dataset.crumb === "catalog") showCatalog();
+          if (button.dataset.crumb === "records") showRecords(selectedTemplateId);
+        });
+      });
+    }
+
+    function renderRecords() {
+      const tpl = flowTemplates.find(item => item.id === selectedTemplateId) || flowTemplates[0];
+      el("recordsTemplateName").textContent = tpl.name;
+      el("recordsTemplateDesc").textContent = tpl.desc;
+      el("recordsDepartment").textContent = tpl.department;
+      el("recordsOwner").textContent = tpl.owner;
+      el("recordsVersion").textContent = tpl.version;
+      el("recordsStepCount").textContent = `${tpl.steps} 步`;
+      el("recordsTemplateStatus").textContent = tpl.status === "active" ? "启用中" : "草稿";
+      document.querySelectorAll(".record-tab").forEach(tab => {
+        tab.classList.toggle("active", tab.dataset.recordTab === recordTab);
+      });
+      const rows = flowInstances
+        .filter(item => item.templateId === selectedTemplateId && item.status === recordTab);
+      el("recordRows").innerHTML = rows.length ? rows.map(item => `
+        <tr>
+          <td><strong>${item.name}</strong></td>
+          <td><span class="badge ${item.status === "active" ? "blue" : "green"}">${item.status === "active" ? "进行中" : "已完成"}</span></td>
+          <td>${item.current}</td>
+          <td>${item.owner}</td>
+          <td>${item.progress}</td>
+          <td>${item.updatedAt}</td>
+          <td><button type="button" data-record-open="${item.templateId}" data-record-name="${item.name}"><i class="el-icon-video-play"></i>${item.status === "active" ? "进入" : "查看"}</button></td>
+        </tr>
+      `).join("") : `<tr><td colspan="7">当前没有${recordTab === "active" ? "正在进行" : "历史"}流程。</td></tr>`;
+      el("recordRows").querySelectorAll("[data-record-open]").forEach(button => {
+        button.addEventListener("click", () => {
+          currentInstanceName = button.dataset.recordName || currentInstanceName;
+          showDetail(button.dataset.recordOpen);
+        });
+      });
+    }
+
+    function syncInstanceName() {
+      const name = (currentInstanceName || "").trim() || "未命名流程实例";
+      el("instanceNameInput").value = name;
+      el("instanceNameDisplay").textContent = name;
+      el("cloudDocPathInput").value = currentCloudDocPath;
+      el("cloudDocPathDisplay").textContent = currentCloudDocPath || "未填写共享盘路径";
+      draftInstanceName = name;
+      draftCloudDocPath = currentCloudDocPath;
+      el("topInstanceName").textContent = name;
+      el("leftInstanceName").textContent = name;
+      el("sideInstanceName").textContent = name;
+      if (currentView === "detail") {
+        const tpl = flowTemplates.find(item => item.id === selectedTemplateId) || flowTemplates[0];
+        el("pageSubtitle").textContent = `${tpl.department} / ${tpl.version} / 当前实例：${name}`;
+      }
+      renderInstanceMetaMode();
+    }
+
+    function renderInstanceMetaMode() {
+      const editing = instanceMetaMode === "edit";
+      el("instanceNameInput").classList.toggle("view-hidden", !editing);
+      el("cloudDocPathInput").classList.toggle("view-hidden", !editing);
+      el("instanceNameDisplay").classList.toggle("view-hidden", editing);
+      el("cloudDocPathDisplay").classList.toggle("view-hidden", editing);
+      el("editInstanceMetaBtn").classList.toggle("view-hidden", editing);
+      el("cancelInstanceNameBtn").classList.toggle("view-hidden", !editing);
+      el("confirmInstanceNameBtn").classList.toggle("view-hidden", !editing);
+      el("openCloudDocBtn").disabled = !currentCloudDocPath;
+    }
+
+    async function copySharePath(raw) {
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(raw);
+          return true;
+        }
+      } catch (err) {
+        return false;
+      }
+      return false;
+    }
+
+    async function openCloudDocFolder() {
+      const raw = (el("cloudDocPathInput").value || currentCloudDocPath || "").trim();
+      if (!raw) {
+        toast("请先填写共享盘路径。");
+        return;
+      }
+      currentCloudDocPath = raw;
+      const copied = await copySharePath(raw);
+      events.push({
+        title: "复制共享盘路径",
+        text: `已复制共享盘路径：${raw}。请粘贴到文件资源管理器地址栏打开。`
+      });
+      renderTimeline();
+      toast(copied ? "已复制共享盘路径，请粘贴到文件资源管理器地址栏打开。" : "请手动复制共享盘路径到文件资源管理器地址栏打开。");
+    }
+
+    function confirmInstanceName() {
+      const nextName = (el("instanceNameInput").value || "").trim() || "未命名流程实例";
+      const nextPath = (el("cloudDocPathInput").value || "").trim();
+      const oldName = currentInstanceName;
+      const oldPath = currentCloudDocPath;
+      currentInstanceName = nextName;
+      currentCloudDocPath = nextPath;
+      draftInstanceName = nextName;
+      draftCloudDocPath = nextPath;
+      instanceMetaMode = "view";
+      syncInstanceName();
+      renderBreadcrumb();
+      renderDocPreview();
+      if (oldName !== nextName || oldPath !== nextPath) {
+        events.push({
+          title: "实例信息确认",
+          text: `流程实例信息已确认：名称“${nextName}”${nextPath ? `，共享盘“${nextPath}”` : "，未填写共享盘路径"}。`
+        });
+        renderTimeline();
+      }
+      toast("流程实例信息已确认。");
+    }
+
+    function cancelInstanceNameEdit() {
+      el("instanceNameInput").value = draftInstanceName;
+      el("cloudDocPathInput").value = draftCloudDocPath;
+      instanceMetaMode = "view";
+      renderInstanceMetaMode();
+      toast("已取消实例信息修改。");
+    }
+
+    function editInstanceMeta() {
+      draftInstanceName = currentInstanceName;
+      draftCloudDocPath = currentCloudDocPath;
+      el("instanceNameInput").value = currentInstanceName;
+      el("cloudDocPathInput").value = currentCloudDocPath;
+      instanceMetaMode = "edit";
+      renderInstanceMetaMode();
+    }
+
+    function ensureDesignerSteps(templateId) {
+      if (designerTemplateSteps[templateId]) return;
+      const tpl = flowTemplates.find(item => item.id === templateId) || flowTemplates[0];
+      designerTemplateSteps[templateId] = JSON.parse(JSON.stringify(
+        templateId === "release-market-sales" ? initialSteps : [
+          { name: "提交申请", owner: tpl.owner, rule: "any", fields: [{ label: "申请说明", type: "textarea", required: true }] },
+          { name: "部门审核", owner: tpl.owner, rule: "any", fields: [{ label: "审核意见", type: "textarea", required: true }] },
+          { name: "归档确认", owner: tpl.owner, rule: "any", fields: [{ label: "归档链接", type: "text", required: true }] }
+        ]
+      ));
+    }
+
+    function renderDesigner() {
+      const tpl = flowTemplates.find(item => item.id === selectedTemplateId) || flowTemplates[0];
+      ensureDesignerSteps(selectedTemplateId);
+      const templateSteps = designerTemplateSteps[selectedTemplateId];
+      const step = templateSteps[selectedDesignerStep] || templateSteps[0];
+      el("designerName").value = tpl.name;
+      el("designerDepartment").value = tpl.department;
+      el("designerStatus").value = tpl.status === "active" ? "启用中" : "草稿";
+      el("designerDesc").value = tpl.desc;
+      el("designerStepName").value = step.name;
+      el("designerOwner").innerHTML = users.map(user => `<option value="${user}">${user}</option>`).join("");
+      el("designerOwner").value = step.owner;
+      el("designerSteps").innerHTML = templateSteps.map((item, index) => `
+        <div class="designer-step ${index === selectedDesignerStep ? "active" : ""}" data-designer-step="${index}">
+          <div>
+            <strong>${index + 1}. ${item.name}</strong>
+            <span>${item.owner} / ${item.rule === "all" ? "全部完成" : "任一人完成"}</span>
+          </div>
+          <div class="designer-step-actions">
+            <button type="button" title="上移" data-step-up="${index}" ${index === 0 ? "disabled" : ""}><i class="el-icon-top"></i></button>
+            <button type="button" title="下移" data-step-down="${index}" ${index === templateSteps.length - 1 ? "disabled" : ""}><i class="el-icon-bottom"></i></button>
+            <button type="button" title="删除" data-step-delete="${index}" ${templateSteps.length <= 1 ? "disabled" : ""}><i class="el-icon-delete"></i></button>
+          </div>
+        </div>
+      `).join("");
+      el("designerSteps").querySelectorAll(".designer-step").forEach(item => {
+        item.addEventListener("click", () => {
+          selectedDesignerStep = Number(item.dataset.designerStep);
+          renderDesigner();
+        });
+      });
+      el("designerSteps").querySelectorAll("[data-step-up], [data-step-down], [data-step-delete]").forEach(button => {
+        button.addEventListener("click", event => {
+          event.stopPropagation();
+          if (button.dataset.stepUp !== undefined) moveDesignerStep(Number(button.dataset.stepUp), -1);
+          if (button.dataset.stepDown !== undefined) moveDesignerStep(Number(button.dataset.stepDown), 1);
+          if (button.dataset.stepDelete !== undefined) deleteDesignerStep(Number(button.dataset.stepDelete));
+        });
+      });
+      el("designerFields").innerHTML = (step.fields || []).map(field => `
+        <span class="badge ${field.required ? "blue" : ""}">${field.label || field.key}${field.required ? " *" : ""} / ${field.type || "text"}</span>
+      `).join("");
+    }
+
+    function addDesignerStep() {
+      ensureDesignerSteps(selectedTemplateId);
+      const templateSteps = designerTemplateSteps[selectedTemplateId];
+      templateSteps.splice(selectedDesignerStep + 1, 0, {
+        name: "新步骤",
+        owner: "Zak",
+        rule: "any",
+        fields: [{ label: "填写内容", type: "text", required: true }]
+      });
+      selectedDesignerStep += 1;
+      toast("已新增步骤，可在右侧修改名称、负责人和规则。");
+      renderDesigner();
+    }
+
+    function moveDesignerStep(index, direction) {
+      const templateSteps = designerTemplateSteps[selectedTemplateId];
+      const target = index + direction;
+      if (target < 0 || target >= templateSteps.length) return;
+      const [item] = templateSteps.splice(index, 1);
+      templateSteps.splice(target, 0, item);
+      selectedDesignerStep = target;
+      toast(direction < 0 ? "步骤已上移。" : "步骤已下移。");
+      renderDesigner();
+    }
+
+    function deleteDesignerStep(index) {
+      const templateSteps = designerTemplateSteps[selectedTemplateId];
+      if (templateSteps.length <= 1) {
+        toast("至少保留一个步骤。");
+        return;
+      }
+      const [removed] = templateSteps.splice(index, 1);
+      selectedDesignerStep = Math.min(index, templateSteps.length - 1);
+      toast(`已删除步骤：${removed.name}`);
+      renderDesigner();
+    }
+
+    function renderCatalog() {
+      const departments = ["全部", ...Array.from(new Set(flowTemplates.map(item => item.department)))];
+      const deptQuery = (el("departmentSearch").value || "").trim().toLowerCase();
+      syncSearchClearButtons();
+      const visibleDepartments = departments.filter(dept => !deptQuery || dept.toLowerCase().includes(deptQuery));
+      el("departmentList").innerHTML = visibleDepartments.map(dept => {
+        const count = dept === "全部" ? flowTemplates.length : flowTemplates.filter(item => item.department === dept).length;
+        return `<button type="button" class="department-button ${dept === selectedDepartment ? "active" : ""}" data-department="${dept}"><span>${dept}</span><span class="badge">${count}</span></button>`;
+      }).join("");
+      el("departmentList").querySelectorAll(".department-button").forEach(button => {
+        button.addEventListener("click", () => {
+          selectedDepartment = button.dataset.department;
+          templatePage = 1;
+          renderCatalog();
+        });
+      });
+
+      const q = (el("templateSearch").value || "").trim().toLowerCase();
+      const status = el("templateStatusFilter").value;
+      const filtered = flowTemplates.filter(item => {
+        const deptOk = selectedDepartment === "全部" || item.department === selectedDepartment;
+        const statusOk = status === "all" || item.status === status;
+        const text = `${item.name} ${item.department} ${item.owner} ${item.desc} ${item.tags.join(" ")}`.toLowerCase();
+        return deptOk && statusOk && (!q || text.includes(q));
+      });
+      const totalPages = Math.max(1, Math.ceil(filtered.length / templatePageSize));
+      if (templatePage > totalPages) templatePage = totalPages;
+      const pageItems = filtered.slice((templatePage - 1) * templatePageSize, templatePage * templatePageSize);
+
+      el("templateGrid").innerHTML = pageItems.map(item => `
+        <article class="template-card" data-template-card="${item.id}" tabindex="0" role="button" aria-label="查看${item.name}">
+          <div class="template-meta">
+            <span class="badge blue">${item.department}</span>
+            <span class="badge ${item.status === "active" ? "green" : "amber"}">${item.status === "active" ? "启用中" : "草稿"}</span>
+          </div>
+          <h3>${item.name}</h3>
+          <p>${item.desc}</p>
+          <div class="template-meta">
+            <span class="badge">${item.steps} 步</span>
+            <span class="badge">默认负责人：${item.owner}</span>
+            <span class="badge">${item.version}</span>
+          </div>
+          <div class="template-actions">
+            <button type="button" data-template-preview="${item.id}"><i class="el-icon-setting"></i>配置模板</button>
+            <button type="button" class="primary" data-template-records="${item.id}"><i class="el-icon-video-play"></i>查看流程</button>
+          </div>
+        </article>
+      `).join("");
+      el("templateGrid").querySelectorAll("[data-template-card]").forEach(card => {
+        card.addEventListener("click", () => showRecords(card.dataset.templateCard));
+        card.addEventListener("keydown", event => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            showRecords(card.dataset.templateCard);
+          }
+        });
+      });
+      el("templateGrid").querySelectorAll("[data-template-records], [data-template-preview]").forEach(button => {
+        button.addEventListener("click", event => {
+          event.stopPropagation();
+          if (button.dataset.templatePreview) showDesigner(button.dataset.templatePreview);
+          else showRecords(button.dataset.templateRecords);
+        });
+      });
+      renderTemplatePagination(totalPages, filtered.length);
+
+      el("instanceRows").innerHTML = flowInstances
+        .filter(item => selectedDepartment === "全部" || item.department === selectedDepartment)
+        .map(item => `
+          <tr>
+            <td><strong>${item.name}</strong></td>
+            <td>${item.department}</td>
+            <td>${item.current}</td>
+            <td>${item.owner}</td>
+            <td>${item.progress}</td>
+            <td><button type="button" data-instance-open="${item.templateId}"><i class="el-icon-video-play"></i>查看流程</button></td>
+          </tr>
+        `).join("");
+      el("instanceRows").querySelectorAll("[data-instance-open]").forEach(button => {
+        button.addEventListener("click", () => showRecords(button.dataset.instanceOpen));
+      });
+    }
+
+    function syncSearchClearButtons() {
+      el("clearDepartmentSearch").classList.toggle("view-hidden", !el("departmentSearch").value);
+      el("clearTemplateSearch").classList.toggle("view-hidden", !el("templateSearch").value);
+    }
+
+    function clearSearch(inputId) {
+      const input = el(inputId);
+      if (!input.value) return;
+      input.value = "";
+      templatePage = 1;
+      syncSearchClearButtons();
+      renderCatalog();
+      input.focus();
+    }
+
+    function renderTemplatePagination(totalPages, totalCount) {
+      const pager = el("templatePagination");
+      if (totalCount <= templatePageSize) {
+        pager.innerHTML = "";
+        return;
+      }
+      const pages = [];
+      const addPage = page => pages.push(`<button type="button" class="${page === templatePage ? "active" : ""}" data-template-page="${page}">${page}</button>`);
+      addPage(1);
+      const start = Math.max(2, templatePage - 1);
+      const end = Math.min(totalPages - 1, templatePage + 1);
+      if (start > 2) pages.push("<span>...</span>");
+      for (let page = start; page <= end; page += 1) addPage(page);
+      if (end < totalPages - 1) pages.push("<span>...</span>");
+      if (totalPages > 1) addPage(totalPages);
+      pager.innerHTML = `
+        <span class="pagination-total">共 ${totalCount} 条</span>
+        <button type="button" data-template-prev ${templatePage === 1 ? "disabled" : ""}>‹</button>
+        ${pages.join("")}
+        <button type="button" data-template-next ${templatePage === totalPages ? "disabled" : ""}>›</button>
+        <span class="pagination-jumper">前往 <input id="templatePageJump" type="number" min="1" max="${totalPages}" value="${templatePage}"> 页</span>
+      `;
+      pager.querySelectorAll("[data-template-page]").forEach(button => {
+        button.addEventListener("click", () => {
+          templatePage = Number(button.dataset.templatePage);
+          renderCatalog();
+        });
+      });
+      const prev = pager.querySelector("[data-template-prev]");
+      const next = pager.querySelector("[data-template-next]");
+      if (prev) prev.addEventListener("click", () => {
+        templatePage = Math.max(1, templatePage - 1);
+        renderCatalog();
+      });
+      if (next) next.addEventListener("click", () => {
+        templatePage = Math.min(totalPages, templatePage + 1);
+        renderCatalog();
+      });
+      const jump = pager.querySelector("#templatePageJump");
+      if (jump) {
+        jump.addEventListener("change", () => {
+          const requested = Number(jump.value);
+          if (!Number.isFinite(requested)) return;
+          templatePage = Math.min(totalPages, Math.max(1, requested));
+          renderCatalog();
+        });
+        jump.addEventListener("keydown", event => {
+          if (event.key === "Enter") {
+            const requested = Number(jump.value);
+            if (!Number.isFinite(requested)) return;
+            templatePage = Math.min(totalPages, Math.max(1, requested));
+            renderCatalog();
+          }
+        });
+      }
+    }
+
+    function currentStepIndex() {
+      const idx = steps.findIndex(step => step.status === "current");
+      return idx >= 0 ? idx : steps.length - 1;
+    }
+
+    function isStepDone(step) {
+      if (step.tasks.length) {
+        if (step.rule === "all") return step.tasks.every(task => task.status === "done");
+        return step.tasks.some(task => task.status === "done");
+      }
+      return step.status === "done";
+    }
+
+    function requiredCount(step) {
+      return step.fields.filter(field => field.required).length;
+    }
+
+    function render() {
+      if (currentView === "catalog") {
+        renderCatalog();
+        return;
+      }
+      if (currentView === "records") {
+        renderRecords();
+        return;
+      }
+      renderStepList();
+      renderMetrics();
+      renderDetail();
+      renderTimeline();
+      renderDocPreview();
+    }
+
+    function renderStepList() {
+      const list = el("stepList");
+      list.innerHTML = steps.map((step, index) => {
+        const done = isStepDone(step);
+        const cls = [
+          "step-item",
+          selectedIndex === index ? "active" : "",
+          step.status === "current" ? "current" : "",
+          done ? "done" : ""
+        ].join(" ");
+        const taskText = step.tasks.length
+          ? `${step.tasks.filter(task => task.status === "done").length}/${step.tasks.length} 子任务`
+          : `${step.assignees.join(" / ")}`;
+        const badge = done ? "已完成" : step.status === "current" ? "进行中" : "待开始";
+        const badgeClass = done ? "green" : step.status === "current" ? "blue" : "";
+        return `
+          <div class="${cls}" data-step-index="${index}">
+            <div class="step-dot">${done ? "✓" : index + 1}</div>
+            <div>
+              <div class="step-name">${step.name}</div>
+              <div class="step-meta">${taskText}</div>
+            </div>
+            <span class="badge ${badgeClass}">${badge}</span>
+          </div>
+        `;
+      }).join("");
+
+      list.querySelectorAll(".step-item").forEach(item => {
+        item.addEventListener("click", () => {
+          selectedIndex = Number(item.dataset.stepIndex);
+          render();
+        });
+      });
+    }
+
+    function renderMetrics() {
+      syncInstanceName();
+      const doneCount = steps.filter(isStepDone).length;
+      el("doneMetric").textContent = `${doneCount}/${steps.length}`;
+      el("topDoneMetric").textContent = `${doneCount}/${steps.length}`;
+      el("currentMetric").textContent = `${currentStepIndex() + 1}`;
+      el("progressBar").style.width = `${Math.round(doneCount / steps.length * 100)}%`;
+      el("topProgressBar").style.width = `${Math.round(doneCount / steps.length * 100)}%`;
+      const current = steps[currentStepIndex()];
+      el("topCurrentStep").textContent = current.name;
+      el("currentOwnerBadge").textContent = `当前：${current.owner}`;
+      el("archiveValue").textContent = doneCount === steps.length ? "可下载" : "进行中";
+      const pn = fieldValue("pn");
+      el("pnValue").textContent = pn || "待填写";
+      el("areaValue").textContent = fieldValue("area") || "全球";
+      el("typeValue").textContent = fieldValue("productType") || "新品";
+      el("exportBtn").disabled = doneCount !== steps.length;
+      el("progressSteps").innerHTML = steps.map((step, index) => {
+        const cls = isStepDone(step) ? "done" : step.status === "current" ? "current" : "";
+        return `
+          <button type="button" class="progress-step ${cls}" title="${step.name}" data-progress-index="${index}">
+            <span class="step-node">${isStepDone(step) ? "✓" : index + 1}</span>
+            <span class="step-label">${step.name}</span>
+          </button>
+        `;
+      }).join("");
+
+      el("progressSteps").querySelectorAll(".progress-step").forEach(button => {
+        button.addEventListener("click", () => {
+          selectedIndex = Number(button.dataset.progressIndex);
+          render();
+        });
+      });
+    }
+
+    function fieldValue(key) {
+      for (const step of steps) {
+        const found = step.fields.find(field => field.key === key);
+        if (found) return found.value;
+      }
+      return "";
+    }
+
+    function renderDetail() {
+      const step = steps[selectedIndex];
+      el("stepTitle").textContent = `${selectedIndex + 1}. ${step.name}`;
+      el("stepDesc").textContent = step.desc;
+      el("requiredBadge").textContent = `必填项 ${requiredCount(step)}`;
+      el("ruleBadge").textContent = step.rule === "all" ? "全部完成后推进" : "任一人完成后推进";
+      renderForm(step);
+      renderAssignment(step);
+      renderTasks(step);
+      renderSignatures(step);
+      const isCurrent = step.status === "current";
+      const done = isStepDone(step);
+      const isEditingDone = Boolean(editingCompleted[step.id]);
+      el("editDoneBtn").style.display = done && !isEditingDone ? "inline-flex" : "none";
+      el("saveRevisionBtn").style.display = done && isEditingDone ? "inline-flex" : "none";
+      el("readonlyNote").classList.toggle("show", done && !isEditingDone);
+      el("completeStepBtn").disabled = !isCurrent;
+      el("completeStepBtn").style.display = done ? "none" : "inline-flex";
+    }
+
+    function renderForm(step) {
+      const form = el("dynamicForm");
+      form.innerHTML = step.fields.map(field => {
+        const disabled = isStepDone(step) && !editingCompleted[step.id] ? "disabled" : "";
+        if (field.type === "choice") {
+          return `
+            <div class="wide">
+              <label>${field.label}${field.required ? " *" : ""}</label>
+              <div class="radio-row" data-field="${field.key}">
+                ${field.options.map(option => `
+                  <label class="choice">
+                    <input type="radio" name="${field.key}" value="${option}" ${field.value === option ? "checked" : ""} ${disabled}>
+                    <span>${option}</span>
+                  </label>
+                `).join("")}
+              </div>
+            </div>
+          `;
+        }
+
+        if (field.type === "textarea") {
+          return `
+            <div class="wide">
+              <label for="${field.key}">${field.label}${field.required ? " *" : ""}</label>
+              <textarea id="${field.key}" data-field="${field.key}" placeholder="填写备注、归档说明或风险点" ${disabled}>${field.value}</textarea>
+            </div>
+          `;
+        }
+
+        return `
+          <div>
+            <label for="${field.key}">${field.label}${field.required ? " *" : ""}</label>
+            <input id="${field.key}" data-field="${field.key}" type="${field.type}" value="${field.value}" placeholder="请输入${field.label}" ${disabled}>
+          </div>
+        `;
+      }).join("");
+
+      form.querySelectorAll("[data-field]").forEach(node => {
+        if (node.classList.contains("radio-row")) {
+          node.querySelectorAll("input").forEach(input => {
+            input.addEventListener("change", () => updateField(step, node.dataset.field, input.value));
+          });
+        } else {
+          node.addEventListener("input", () => updateField(step, node.dataset.field, node.value));
+        }
+      });
+    }
+
+    function updateField(step, key, value) {
+      const field = step.fields.find(item => item.key === key);
+      if (field) field.value = value;
+      renderMetrics();
+      renderDocPreview();
+    }
+
+    function renderAssignment(step) {
+      el("assignMode").value = groups[step.owner] ? "group" : "user";
+      refreshAssigneeSelect();
+      el("ruleSelect").value = step.rule;
+      const locked = isStepDone(step) && !editingCompleted[step.id];
+      el("assignMode").disabled = locked;
+      el("assigneeSelect").disabled = locked;
+      el("ruleSelect").disabled = locked;
+      el("assignBtn").disabled = locked;
+    }
+
+    function refreshAssigneeSelect() {
+      const mode = el("assignMode").value;
+      const values = mode === "group" ? Object.keys(groups) : users;
+      el("assigneeSelect").innerHTML = values.map(item => `<option value="${item}">${item}</option>`).join("");
+      const step = steps[selectedIndex];
+      if (values.includes(step.owner)) el("assigneeSelect").value = step.owner;
+      const locked = isStepDone(step) && !editingCompleted[step.id];
+      el("assigneeSelect").disabled = locked;
+    }
+
+    function renderTasks(step) {
+      const section = el("subtaskSection");
+      section.style.display = step.tasks.length ? "block" : "none";
+      el("taskMetric").textContent = `${step.tasks.filter(task => task.status === "done").length}/${step.tasks.length}`;
+      el("taskList").innerHTML = step.tasks.map((task, index) => `
+        <div class="task-row">
+          <div class="task-main">
+            <strong>${task.title}</strong>
+            <span>${task.note}</span>
+          </div>
+          <div class="task-owner">${task.owner}</div>
+          <span class="badge ${task.status === "done" ? "green" : "amber"}">${task.status === "done" ? "已签名" : "待处理"}</span>
+          <button type="button" data-task-index="${index}" ${task.status === "done" || step.status !== "current" ? "disabled" : ""}><i class="el-icon-document-checked"></i>完成</button>
+        </div>
+      `).join("");
+
+      el("taskList").querySelectorAll("button[data-task-index]").forEach(button => {
+        button.addEventListener("click", () => completeTask(Number(button.dataset.taskIndex)));
+      });
+    }
+
+    function renderSignatures(step) {
+      el("signatureCount").textContent = `${step.signatures.length} 条`;
+      el("signatureList").innerHTML = step.signatures.length
+        ? step.signatures.map(sig => `<div class="signature">${sig}</div>`).join("")
+        : `<div class="event"><p>当前步骤还没有签名记录。</p></div>`;
+    }
+
+    function renderTimeline() {
+      el("timeline").innerHTML = events.slice().reverse().map(event => `
+        <div class="event">
+          <strong>${event.title}</strong>
+          <p>${event.text}</p>
+        </div>
+      `).join("");
+    }
+
+    function renderDocPreview() {
+      const rows = [
+        ["子流程", "任务/填写内容", "负责人", "签名"],
+        ["PN 分配", `PN：${fieldValue("pn") || "待填写"}`, "Sandra", signatureText(1)],
+        ["品名确定", `${fieldValue("cnName") || "中文品名待填写"} / ${fieldValue("enName") || "英文品名待填写"}`, "Sandra", signatureText(2)],
+        ["规格书编写", `Datasheet：${fieldValue("datasheetLink") || "待填写"}`, "Datasheet Team", signatureText(4)],
+        ["市场宣发", `素材归档：${fieldValue("campaignLink") || "待填写"}`, "市场宣发组", signatureText(6)],
+        ["发布完成确认", `发布日期：${fieldValue("releaseDate") || "待填写"}`, "Zak", signatureText(8)]
+      ];
+      el("docPreview").innerHTML = rows.map((row, index) => `
+        <div class="doc-row ${index === 0 ? "doc-head" : ""}">
+          <div>${row[0]}</div>
+          <div>${row[1]}</div>
+          <div>${row[2]}</div>
+          <div>${row[3]}</div>
+        </div>
+      `).join("");
+    }
+
+    function signatureText(index) {
+      const step = steps[index];
+      if (!step || !step.signatures.length) return "待签";
+      return step.signatures.length > 1 ? `${step.signatures.length} 人` : "已签";
+    }
+
+    function completeTask(taskIndex) {
+      const step = steps[selectedIndex];
+      const task = step.tasks[taskIndex];
+      task.status = "done";
+      const sig = `${task.owner} 于 ${nowText()} 完成“${task.title}”`;
+      step.signatures.push(sig);
+      events.push({
+        title: "子任务完成",
+        text: `${task.owner} 完成了 ${step.name} 下的“${task.title}”，系统已记录电子签名。`
+      });
+      toast(`已签名：${task.title}`);
+      if (isStepDone(step)) advanceIfCurrent(step);
+      render();
+    }
+
+    function completeCurrentStep() {
+      const step = steps[selectedIndex];
+      if (step.status !== "current") return;
+      if (step.tasks.length) {
+        const remaining = step.tasks.filter(task => task.status !== "done").length;
+        if (remaining) {
+          toast(`还有 ${remaining} 个子任务未完成，不能进入下一步。`);
+          return;
+        }
+      }
+
+      const missing = step.fields.filter(field => field.required && !String(field.value || "").trim());
+      if (missing.length) {
+        toast(`请先填写必填项：${missing.map(field => field.label).join("、")}`);
+        return;
+      }
+
+      step.signatures.push(`${step.owner} 于 ${nowText()} 完成“${step.name}”`);
+      advanceIfCurrent(step);
+      render();
+    }
+
+    function editCompletedStep() {
+      const step = steps[selectedIndex];
+      if (!isStepDone(step)) return;
+      editingCompleted[step.id] = true;
+      events.push({
+        title: "打开修订",
+        text: `${step.name} 已进入修订模式，保存后不会回退后续流程，但会保留修订记录。`
+      });
+      toast("已进入修订模式。");
+      render();
+    }
+
+    function saveRevision() {
+      const step = steps[selectedIndex];
+      if (!editingCompleted[step.id]) return;
+      const missing = step.fields.filter(field => field.required && !String(field.value || "").trim());
+      if (missing.length) {
+        toast(`请先填写必填项：${missing.map(field => field.label).join("、")}`);
+        return;
+      }
+      delete editingCompleted[step.id];
+      const sig = `${step.owner} 于 ${nowText()} 修订了“${step.name}”`;
+      step.signatures.push(sig);
+      events.push({
+        title: "内容修订",
+        text: `${step.name} 的已完成内容被修改，系统已追加修订签名，不影响当前流程推进位置。`
+      });
+      toast("修订已保存，并追加签名记录。");
+      render();
+    }
+
+    function advanceIfCurrent(step) {
+      const index = steps.indexOf(step);
+      if (step.status !== "current") return;
+      step.status = "done";
+      events.push({
+        title: "步骤完成",
+        text: `${step.name} 已完成，系统自动签名并尝试推进到下一步。`
+      });
+
+      if (index + 1 < steps.length) {
+        steps[index + 1].status = "current";
+        selectedIndex = index + 1;
+        events.push({
+          title: "微信机器人",
+          text: `已通知 ${steps[index + 1].owner}：请处理“${steps[index + 1].name}”。`
+        });
+      } else {
+        selectedIndex = index;
+        events.push({
+          title: "流程完成",
+          text: "全部步骤已完成，可以生成并下载产品 release 查检表。"
+        });
+      }
+    }
+
+    function applyAssignment() {
+      const step = steps[selectedIndex];
+      const mode = el("assignMode").value;
+      const owner = el("assigneeSelect").value;
+      const rule = el("ruleSelect").value;
+      const oldOwner = step.owner;
+      step.owner = owner;
+      step.rule = rule;
+      step.assignees = expandAssignees(owner);
+
+      if (mode === "group") {
+        step.tasks = step.assignees.map(person => ({
+          title: `${step.name}确认`,
+          owner: person,
+          status: "pending",
+          note: "重新分配后生成的会签任务"
+        }));
+      } else {
+        step.tasks = [];
+      }
+
+      events.push({
+        title: "责任分配",
+        text: `${oldOwner} 的任务已调整为 ${owner}，完成规则为“${rule === "all" ? "全部完成" : "任一人完成"}”。`
+      });
+      events.push({
+        title: "微信机器人",
+        text: `已通知 ${owner}：你有新的流程任务“${step.name}”。`
+      });
+      toast("责任分配已更新，并模拟发送微信通知。");
+      render();
+    }
+
+    function remind() {
+      const step = steps[selectedIndex];
+      events.push({
+        title: "催办提醒",
+        text: `已向 ${step.owner} 发送“${step.name}”待办提醒。`
+      });
+      toast(`已模拟催办：${step.owner}`);
+      renderTimeline();
+    }
+
+    function exportDoc() {
+      const doneCount = steps.filter(isStepDone).length;
+      if (doneCount !== steps.length) {
+        toast("流程未全部完成，暂不能生成最终查检表。");
+        return;
+      }
+      events.push({
+        title: "文档生成",
+        text: "系统已将页面填写内容、子任务完成情况和电子签名汇总为 Word 查检表。"
+      });
+      toast("已生成产品 Release 查检表。实际版本会下载 .docx 文件。");
+      renderTimeline();
+    }
+
+    function nowText() {
+      const d = new Date();
+      const pad = value => String(value).padStart(2, "0");
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    }
+
+    let toastTimer;
+    function toast(message) {
+      const box = el("toast");
+      box.textContent = message;
+      box.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => box.classList.remove("show"), 2600);
+    }
+
+    el("assignMode").addEventListener("change", refreshAssigneeSelect);
+    el("assignBtn").addEventListener("click", applyAssignment);
+    el("completeStepBtn").addEventListener("click", completeCurrentStep);
+    el("editDoneBtn").addEventListener("click", editCompletedStep);
+    el("saveRevisionBtn").addEventListener("click", saveRevision);
+    el("remindBtn").addEventListener("click", remind);
+    el("resetBtn").addEventListener("click", resetDemo);
+    el("exportBtn").addEventListener("click", exportDoc);
+    el("backCatalogBtn").addEventListener("click", showCatalog);
+    el("backCatalogFromDesignerBtn").addEventListener("click", showCatalog);
+    el("startFromDesignerBtn").addEventListener("click", () => showDetail(selectedTemplateId));
+    el("addDesignerStepBtn").addEventListener("click", addDesignerStep);
+    el("backCatalogFromRecordsBtn").addEventListener("click", showCatalog);
+    el("configFromRecordsBtn").addEventListener("click", () => showDesigner(selectedTemplateId));
+    el("newFlowInstanceBtn").addEventListener("click", () => {
+      const tpl = flowTemplates.find(item => item.id === selectedTemplateId) || flowTemplates[0];
+      currentInstanceName = `${tpl.name} - 新建实例`;
+      currentCloudDocPath = "";
+      instanceMetaMode = "edit";
+      resetDemo();
+      showDetail(selectedTemplateId);
+    });
+    el("instanceNameInput").addEventListener("input", () => {
+      // 名称修改需要显式确认，输入时只保留草稿。
+    });
+    el("confirmInstanceNameBtn").addEventListener("click", confirmInstanceName);
+    el("cancelInstanceNameBtn").addEventListener("click", cancelInstanceNameEdit);
+    el("editInstanceMetaBtn").addEventListener("click", editInstanceMeta);
+    el("cloudDocPathInput").addEventListener("change", () => {
+      if (el("cloudDocPathInput").value.trim()) toast("共享盘路径已填写，确认后生效。");
+    });
+    el("openCloudDocBtn").addEventListener("click", openCloudDocFolder);
+    el("sideOpenCloudDocBtn").addEventListener("click", openCloudDocFolder);
+    document.querySelectorAll(".record-tab").forEach(tab => {
+      tab.addEventListener("click", () => {
+        recordTab = tab.dataset.recordTab;
+        renderRecords();
+      });
+    });
+    el("newTemplateBtn").addEventListener("click", () => toast("这里后续会进入流程模板配置页：步骤、字段、默认负责人、会签规则。"));
+    el("departmentSearch").addEventListener("input", () => {
+      templatePage = 1;
+      syncSearchClearButtons();
+      renderCatalog();
+    });
+    el("templateSearch").addEventListener("input", () => {
+      templatePage = 1;
+      syncSearchClearButtons();
+      renderCatalog();
+    });
+    el("clearDepartmentSearch").addEventListener("click", () => clearSearch("departmentSearch"));
+    el("clearTemplateSearch").addEventListener("click", () => clearSearch("templateSearch"));
+    el("templateStatusFilter").addEventListener("change", () => {
+      templatePage = 1;
+      renderCatalog();
+    });
+
+    resetDemo();
+    showCatalog();
+  </script>
+</body>
+</html>

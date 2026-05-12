@@ -1,0 +1,219 @@
+﻿<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>内部后台管理系统</title>
+  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+  <link rel="stylesheet" href="src/styles/admin.css">
+  <link rel="stylesheet" href="src/styles/flow.css">
+</head>
+<body>
+  <div class="app">
+    <div class="top-nav">
+      <div class="nav-inner">
+        <div class="nav-left">
+          <button class="nav-item active" id="homeNav" type="button">首页</button>
+          <div class="nav-dropdown" id="manageDropdown">
+            <button class="nav-item" id="manageNav" type="button">管理</button>
+            <div class="nav-menu" id="manageMenu"></div>
+          </div>
+          <div class="nav-dropdown">
+            <button class="nav-item" type="button">设置</button>
+            <div class="nav-menu">
+              <button class="nav-menu-item" type="button">重置密码</button>
+              <button class="nav-menu-item" type="button">错误追踪解析</button>
+            </div>
+          </div>
+        </div>
+        <div class="nav-right">
+          <div class="nav-dropdown">
+            <button class="nav-item" type="button">账户</button>
+            <div class="nav-menu nav-menu-right">
+              <button class="nav-menu-item" type="button">登出</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <main class="admin-shell">
+      <section class="main-panel">
+      <div class="page-top" id="pageTop">
+        <nav class="breadcrumb" id="breadcrumb"></nav>
+        <button class="el-button el-button--primary primary" id="createTemplateBtn" type="button">+ 新增流程模板</button>
+      </div>
+
+      <section id="homeView" class="home-view">
+        <div class="home-hero">
+          <div>
+            <span class="eyebrow">管理首页</span>
+            <h1>选择要进入的管理模块</h1>
+            <p>人员、流程、权限和通知等后台能力从这里进入；新增模块时只需要扩展模块配置。</p>
+          </div>
+        </div>
+        <div id="moduleGrid" class="module-grid"></div>
+      </section>
+
+      <section id="flowReferenceView" class="flow-reference-view hidden">
+        <iframe id="flowReferenceFrame" class="flow-reference-frame" src="src/reference-release-flow-demo.html" title="流程管理"></iframe>
+      </section>
+
+      <section id="flowCatalog" class="flow-catalog hidden">
+        <aside class="panel el-card department-panel">
+          <div class="panel-header">
+            <h2>部门</h2>
+            <p>不同部门维护自己的流程模板</p>
+          </div>
+          <div class="panel-body">
+            <div class="search-field">
+              <input class="el-input__inner" id="departmentSearch" type="text" placeholder="搜索部门">
+              <button id="clearDepartmentSearch" class="clear-btn el-button hidden" type="button">×</button>
+            </div>
+            <div id="departmentList" class="department-list"></div>
+          </div>
+        </aside>
+
+        <section class="flow-main">
+          <div class="toolbar">
+            <div class="search-field">
+              <input class="el-input__inner" id="templateSearch" type="text" placeholder="搜索流程名称、场景或负责人">
+              <button id="clearTemplateSearch" class="clear-btn el-button hidden" type="button">×</button>
+            </div>
+            <select class="el-input__inner" id="statusFilter">
+              <option value="all">全部状态</option>
+              <option value="active">启用中</option>
+              <option value="draft">草稿</option>
+            </select>
+          </div>
+          <div id="templateGrid" class="template-grid"></div>
+          <div id="templatePagination" class="pagination"></div>
+
+          <section class="panel el-card recent-panel">
+            <div class="panel-header">
+              <h2>最近流程</h2>
+              <p>进入流程后可查看正在进行和历史记录</p>
+            </div>
+            <div class="panel-body">
+              <table class="data-table">
+                <thead>
+                  <tr><th>流程实例</th><th>部门</th><th>当前节点</th><th>负责人</th><th>进度</th><th>操作</th></tr>
+                </thead>
+                <tbody id="recentRows"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+      </section>
+
+      <section id="recordsView" class="records-view hidden">
+        <aside class="panel el-card">
+          <div class="panel-header">
+            <h2 id="recordsTitle">流程名称</h2>
+            <p id="recordsDesc">流程说明</p>
+          </div>
+          <div class="panel-body kv">
+            <div><span>所属部门</span><strong id="recordsDepartment">-</strong></div>
+            <div><span>默认负责人</span><strong id="recordsOwner">-</strong></div>
+            <div><span>模板版本</span><strong id="recordsVersion">-</strong></div>
+            <div><span>步骤数</span><strong id="recordsSteps">-</strong></div>
+          </div>
+        </aside>
+        <section class="panel el-card records-main">
+          <div class="record-tabs">
+            <button class="record-tab el-button active" data-record-tab="active" type="button">正在进行</button>
+            <button class="record-tab el-button" data-record-tab="history" type="button">历史流程</button>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr><th>流程实例</th><th>状态</th><th>当前/完成节点</th><th>负责人</th><th>进度</th><th>更新时间</th><th>操作</th></tr>
+            </thead>
+            <tbody id="recordRows"></tbody>
+          </table>
+        </section>
+      </section>
+
+      <section id="detailView" class="detail-view hidden">
+        <section class="instance-card">
+          <label>流程实例名称</label>
+          <div class="instance-display" id="instanceDisplayRow">
+            <strong id="instanceNameDisplay">Semea X1 产品发布</strong>
+            <button class="el-button" id="editInstanceBtn" type="button">编辑</button>
+          </div>
+          <div class="instance-editor hidden" id="instanceEditor">
+            <input class="el-input__inner" id="instanceNameInput" type="text">
+            <input class="el-input__inner" id="cloudPathInput" type="text" placeholder="填写公司内网共享盘路径">
+            <button class="el-button" id="cancelInstanceBtn" type="button">取消</button>
+            <button id="confirmInstanceBtn" class="el-button el-button--primary primary" type="button">确认修改</button>
+          </div>
+        </section>
+
+        <section class="steps-card">
+          <div class="steps-head">
+            <span>当前节点：<strong id="currentStepName">预确认信息</strong></span>
+            <span>整体完成：<strong id="completeMetric">0/9</strong></span>
+          </div>
+          <div id="stepBar" class="step-bar"></div>
+        </section>
+
+        <section class="workspace">
+          <aside class="panel el-card step-list-panel">
+            <div class="panel-header"><h2>流程进度</h2><p id="detailInstanceName">Semea X1 产品发布</p></div>
+            <div id="stepList" class="step-list"></div>
+          </aside>
+
+          <section class="panel el-card form-panel">
+            <div class="form-title">
+              <div><h2 id="activeStepTitle">1. 预确认信息</h2><p id="activeStepDesc">确认销售区域、配套产品、相关产品销售区域是否一致。</p></div>
+              <button class="el-button el-button--success success" id="completeStepBtn" type="button">完成当前任务</button>
+            </div>
+            <div class="form-section">
+              <h3>本步骤填写</h3>
+              <div class="choice-row"><button class="choice el-button active">全球</button><button class="choice el-button">仅国内</button><button class="choice el-button">仅海外</button></div>
+              <label>相关产品名称</label>
+              <input class="el-input__inner" type="text" placeholder="请输入相关产品名称">
+            </div>
+            <div class="form-section">
+              <h3>责任分配</h3>
+              <div class="assign-grid">
+                <select class="el-input__inner" id="assignType"><option value="person">指定人员</option><option value="group">指定小组</option></select>
+                <select class="el-input__inner" id="assignTarget"></select>
+                <select class="el-input__inner" id="assignRule"><option value="any">任一人完成</option><option value="all">全部完成</option></select>
+                <button id="applyAssignBtn" class="el-button el-button--primary primary" type="button">应用分配</button>
+              </div>
+              <div id="subTaskList" class="sub-task-list"></div>
+            </div>
+          </section>
+
+          <aside class="side-stack">
+            <section class="panel el-card">
+              <div class="panel-header"><h2>流程信息</h2><p>最后归档到 Word 查检表</p></div>
+              <div class="panel-body kv">
+                <div><span>实例名称</span><strong id="sideInstanceName">Semea X1 产品发布</strong></div>
+                <div><span>共享盘</span><button class="el-button" id="copyCloudPathBtn" type="button">复制路径</button></div>
+                <div><span>PN</span><strong>待填写</strong></div>
+                <div><span>归档状态</span><strong>进行中</strong></div>
+              </div>
+            </section>
+            <section class="panel el-card">
+              <div class="panel-header"><h2>通知与操作日志</h2><p>模拟企业微信机器人通知</p></div>
+              <div id="logList" class="panel-body log-list"></div>
+            </section>
+          </aside>
+        </section>
+      </section>
+
+      <section id="placeholderModule" class="placeholder hidden">
+        <h2 id="placeholderTitle">模块建设中</h2>
+        <p>这里后续可以扩展为独立后台模块。</p>
+      </section>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+  <script src="src/scripts/flow-data.js"></script>
+  <script src="src/scripts/flow-app.js"></script>
+</body>
+</html>
+
