@@ -1,0 +1,23 @@
+{
+  "name": "internal-admin-system",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --mode dev",
+    "dev:prod": "vite --host 127.0.0.1 --mode prod",
+    "build": "vite build --mode prod",
+    "build:dev": "vite build --mode dev",
+    "test": "node tools/verify-vue-migration.mjs && node tools/verify-security-v1.mjs && node tools/verify-template-write-v1.mjs && node tools/verify_catalog_sorting.mjs && node tools/verify_flow_detail_permissions.mjs && node tools/verify-bundle-splitting.mjs"
+  },
+  "dependencies": {
+    "axios": "^1.9.0",
+    "element-ui": "^2.15.14",
+    "vue": "2.7.16",
+    "vue-router": "^3.6.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue2": "^2.3.3",
+    "vite": "^5.4.21",
+    "vue-template-compiler": "2.7.16"
+  }
+}
