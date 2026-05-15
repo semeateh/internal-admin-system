@@ -1,0 +1,21 @@
+{
+  "name": "internal-admin-system",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --mode dev",
+    "dev:prod": "vite --host 127.0.0.1 --mode prod",
+    "build": "vite build --mode prod",
+    "build:dev": "vite build --mode dev",
+    "test": "node tools/verify-vue-migration.mjs && node tools/verify-fullstack-v1.mjs && node tools/verify-security-v1.mjs && node tools/verify-template-write-v1.mjs && .venv\\Scripts\\python.exe tools\\verify_flow_detail_real_v1.py"
+  },
+  "dependencies": {
+    "element-ui": "^2.15.14",
+    "vue": "2.7.16"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue2": "^2.3.3",
+    "vite": "^5.4.21",
+    "vue-template-compiler": "2.7.16"
+  }
+}

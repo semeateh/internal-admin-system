@@ -1,0 +1,31 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Backend: Flask",
+      "type": "python",
+      "request": "launch",
+      "module": "backend.app",
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}/.env.dev",
+      "env": {
+        "APP_ENV": "dev",
+        "ENV_FILE": ".env.dev"
+      },
+      "justMyCode": true
+    },
+    {
+      "name": "Backend: Flask Prod Config",
+      "type": "python",
+      "request": "launch",
+      "module": "backend.app",
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}/.env.prod",
+      "env": {
+        "APP_ENV": "prod",
+        "ENV_FILE": ".env.prod"
+      },
+      "justMyCode": true
+    }
+  ]
+}

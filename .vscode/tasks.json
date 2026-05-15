@@ -1,0 +1,80 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Frontend: Install Dependencies",
+      "type": "shell",
+      "command": "npm install",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Frontend: Vite Dev",
+      "type": "shell",
+      "command": "npm run dev",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Frontend: Vite Prod Config",
+      "type": "shell",
+      "command": "npm run dev:prod",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Backend: Flask Dev",
+      "type": "shell",
+      "command": "if (Test-Path .\\.venv\\Scripts\\python.exe) { .\\.venv\\Scripts\\python.exe -m backend.app } else { python -m backend.app }",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "APP_ENV": "dev",
+          "ENV_FILE": ".env.dev"
+        }
+      },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Backend: Flask Prod Config",
+      "type": "shell",
+      "command": "if (Test-Path .\\.venv\\Scripts\\python.exe) { .\\.venv\\Scripts\\python.exe -m backend.app } else { python -m backend.app }",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "APP_ENV": "prod",
+          "ENV_FILE": ".env.prod"
+        }
+      },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "Fullstack: Dev",
+      "dependsOn": [
+        "Backend: Flask Dev",
+        "Frontend: Vite Dev"
+      ],
+      "dependsOrder": "parallel",
+      "problemMatcher": []
+    },
+    {
+      "label": "Fullstack: Prod Config",
+      "dependsOn": [
+        "Backend: Flask Prod Config",
+        "Frontend: Vite Prod Config"
+      ],
+      "dependsOrder": "parallel",
+      "problemMatcher": []
+    }
+  ]
+}

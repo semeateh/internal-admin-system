@@ -15,7 +15,7 @@ CREATE DATABASE IF NOT EXISTS internal_admin_system
 
 USE internal_admin_system;
 
--- 建表完成后，可继续执行 docs/seed.sql 初始化默认部门、管理员账号、管理员/员工角色和基础权限。
+-- 建表完成后，可继续执行 docs/seed.sql 初始化默认部门、管理员账号、管理员/员工/开发者角色和基础权限。
 
 -- 部门基础数据。员工、组、流程模板都归属于部门。
 CREATE TABLE departments (
@@ -48,7 +48,7 @@ CREATE TABLE employees (
     FOREIGN KEY (department_id) REFERENCES departments (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='员工表：维护员工账号、部门、职位和登录状态';
 
--- 角色基础数据，例如管理员、流程管理员、审批人、只读用户。
+-- 角色基础数据，例如管理员、员工、开发者、流程管理员、审批人、只读用户。
 CREATE TABLE roles (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '角色ID',
   role_name VARCHAR(100) NOT NULL COMMENT '角色名称',
@@ -77,9 +77,11 @@ CREATE TABLE employee_roles (
 -- 权限基础数据。一个权限代表一个受控菜单、按钮或接口能力。
 CREATE TABLE permissions (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '权限ID',
+  permission_code VARCHAR(100) NOT NULL COMMENT '权限编码，后端鉴权使用',
   permission_name VARCHAR(100) NOT NULL COMMENT '权限名称',
   status TINYINT NOT NULL DEFAULT 1 COMMENT '状态：1启用，0禁用',
   PRIMARY KEY (id),
+  UNIQUE KEY uk_permissions_code (permission_code),
   UNIQUE KEY uk_permissions_name (permission_name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='权限表：维护菜单、按钮、接口等权限点';
 
@@ -130,6 +132,8 @@ CREATE TABLE group_members (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='组-员工关系表：维护小组成员';
 
 -- 流程模板主表。模板下包含步骤、字段、参与人和版本信息。
+-- 版本规则：version_code 为全局唯一版本号，由后端统一生成，例如 20260514001。
+-- 发布规则：已发布且已有实例的模板记录不可原地修改步骤、字段、负责人，只能新建版本记录。
 CREATE TABLE flow_templates (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '模板ID',
   template_name VARCHAR(150) NOT NULL COMMENT '模板名',
@@ -137,7 +141,7 @@ CREATE TABLE flow_templates (
   status TINYINT NOT NULL DEFAULT 0 COMMENT '状态：1可使用，0草稿，-1已废弃',
   description TEXT DEFAULT NULL COMMENT '模板描述',
   default_owner_id BIGINT UNSIGNED DEFAULT NULL COMMENT '默认负责人，关联员工ID',
-  version_code VARCHAR(20) NOT NULL COMMENT '版本号，例如20260512001；建议格式为yyyyMMdd + 三位序号',
+  version_code VARCHAR(20) NOT NULL COMMENT '全局唯一版本号，例如20260514001；由后端统一生成',
   is_latest TINYINT NOT NULL DEFAULT 1 COMMENT '是否最新版本：1是，0否',
   notify_type VARCHAR(50) DEFAULT NULL COMMENT '通知方式',
   archive_output_type VARCHAR(50) DEFAULT NULL COMMENT '归档输出方式',
@@ -222,6 +226,7 @@ CREATE TABLE flow_template_step_fields (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='步骤-字段关系表：配置每个步骤包含哪些字段';
 
 -- 流程实例主表。用户基于模板发起流程时生成一条实例记录。
+-- 实例只关联创建时的模板版本记录；模板后续修改必须生成新的 flow_templates.id，不影响旧实例。
 CREATE TABLE flow_instances (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '实例ID',
   template_id BIGINT UNSIGNED NOT NULL COMMENT '模板ID',
@@ -247,6 +252,7 @@ CREATE TABLE flow_instances (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='流程实例表：记录一次真实发起的流程';
 
 -- 流程运行时任务。根据模板步骤参与人生成，用于待办列表和完成状态追踪。
+-- 发起实例时，后端根据模板步骤的 assignee_type 联查员工、组、角色、部门，展开为具体员工后写入本表。
 CREATE TABLE flow_instance_tasks (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '实例任务ID',
   instance_id BIGINT UNSIGNED NOT NULL COMMENT '实例ID',
